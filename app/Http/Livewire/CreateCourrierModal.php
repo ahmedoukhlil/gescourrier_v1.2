@@ -21,9 +21,6 @@ class CreateCourrierModal extends Component
     public $document;
     public $additional_destinataires = [];
     
-    // Ajout d'un écouteur pour l'événement openCourrierModal
-    protected $listeners = ['openCourrierModal' => 'openModal', 'refreshCourriers' => '$refresh'];
-    
     protected $rules = [
         'expediteur' => 'required|string|max:255',
         'type' => 'required|in:urgent,confidentiel,normal',

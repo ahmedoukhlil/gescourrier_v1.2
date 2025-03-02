@@ -1,28 +1,4 @@
 <div>
-    <div class="mb-4 flex justify-between items-center">
-        <h2 class="text-2xl font-semibold">Liste des Courriers</h2>
-        
-        <!-- Bouton qui émet un événement Livewire -->
-        <button 
-            wire:click="$emit('openCourrierModal')" 
-            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-            <span class="flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Nouveau Courrier
-            </span>
-        </button>
-    </div>
-
-    <!-- Message de succès -->
-    @if(session()->has('success'))
-        <div class="mb-4 p-4 bg-green-100 text-green-800 rounded">
-            {{ session('success') }}
-        </div>
-    @endif
-
     <div class="mb-4 bg-white p-4 rounded shadow">
         <div class="flex flex-wrap items-center justify-between mb-4">
             <h3 class="text-lg font-semibold">Filtres</h3>
@@ -165,16 +141,9 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <div class="flex space-x-2">
-                                <a href="{{ route('courriers.show', $courrier) }}" class="text-blue-600 hover:text-blue-900" title="Détails">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                    </svg>
+                                    
                                 </a>
-                                <a href="{{ route('courriers.edit', $courrier) }}" class="text-green-600 hover:text-green-900" title="Modifier">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
+                                    
                                 </a>
                                 <button wire:click="deleteConfirm({{ $courrier->id }})" class="text-red-600 hover:text-red-900" title="Supprimer">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -5,93 +5,107 @@ namespace App\Http\Livewire;
 use App\Models\CourriersEntrants;
 use App\Models\Destinataire;
 use Livewire\Component;
-use Livewire\WithFileUploads;
+use Livewire\WithPagination;
+use Illuminate\Support\Facades\Storage;
 
-class CreateCourrierModal extends Component
+class CourriersList extends Component
 {
-    use WithFileUploads;
+    use WithPagination;
     
-    public $isOpen = false;
+    public $search = '';
+    public $status = '';
+    public $dateFrom = '';
+    public $dateTo = '';
+    public $type = '';
     
-    public $expediteur;
-    public $type = 'normal';
-    public $objet;
-    public $destinataire_id;
-    public $nom_dechargeur;
-    public $document;
-    public $additional_destinataires = [];
+    public $selectedDocument = null;
+    public $showDocumentModal = false;
     
-    // Ajout d'un écouteur pour l'événement openCourrierModal
-    protected $listeners = ['openCourrierModal' => 'openModal', 'refreshCourriers' => '$refresh'];
+    protected $queryString = ['search', 'status', 'dateFrom', 'dateTo', 'type'];
     
-    protected $rules = [
-        'expediteur' => 'required|string|max:255',
-        'type' => 'required|in:urgent,confidentiel,normal',
-        'objet' => 'required|string|max:255',
-        'destinataire_id' => 'required|exists:destinataires,id',
-        'nom_dechargeur' => 'required|string|max:255',
-        'document' => 'nullable|file|max:10240',
-        'additional_destinataires' => 'nullable|array',
-        'additional_destinataires.*' => 'exists:destinataires,id',
-    ];
+    protected $listeners = ['refreshCourriers' => '$refresh', 'delete' => 'delete'];
     
-    public function openModal()
+    public function updatingSearch()
     {
-        $this->isOpen = true;
-        $this->resetValidation();
-        $this->reset([
-            'expediteur', 
-            'type', 
-            'objet', 
-            'destinataire_id', 
-            'nom_dechargeur', 
-            'document',
-            'additional_destinataires'
-        ]);
+        $this->resetPage();
     }
     
-    public function closeModal()
+    public function viewDocument($documentPath)
     {
-        $this->isOpen = false;
+        $this->selectedDocument = $documentPath;
+        $this->showDocumentModal = true;
+    }
+    
+    public function closeDocumentModal()
+    {
+        $this->showDocumentModal = false;
+        $this->selectedDocument = null;
     }
     
     public function render()
     {
-        return view('livewire.create-courrier-modal', [
+        $query = CourriersEntrants::with(['destinataireInterne', 'destinataires']);
+        
+        if ($this->search) {
+            $query->where(function($q) {
+                $q->where('expediteur', 'like', '%' . $this->search . '%')
+                  ->orWhere('numero_ordre', 'like', '%' . $this->search . '%')
+                  ->orWhere('objet', 'like', '%' . $this->search . '%')
+                  ->orWhereHas('destinataireInterne', function($q2) {
+                      $q2->where('nom', 'like', '%' . $this->search . '%');
+                  });
+            });
+        }
+        
+        if ($this->status) {
+            $query->where('statut', $this->status);
+        }
+        
+        if ($this->type) {
+            $query->where('type', $this->type);
+        }
+        
+        if ($this->dateFrom) {
+            $query->whereDate('created_at', '>=', $this->dateFrom);
+        }
+        
+        if ($this->dateTo) {
+            $query->whereDate('created_at', '<=', $this->dateTo);
+        }
+        
+        $courriers = $query->latest()->paginate(10);
+        
+        return view('livewire.courriers-list', [
+            'courriers' => $courriers,
             'destinataires' => Destinataire::orderBy('nom')->get()
         ]);
     }
     
-    public function save()
+    public function deleteConfirm($id)
     {
-        $validatedData = $this->validate();
+        $this->dispatchBrowserEvent('swal:confirm', [
+            'title' => 'Êtes-vous sûr?',
+            'text' => "Cette action est irréversible!",
+            'id' => $id
+        ]);
+    }
+    
+    public function delete($id)
+    {
+        $courrier = CourriersEntrants::findOrFail($id);
         
-        $data = [
-            'expediteur' => $this->expediteur,
-            'type' => $this->type,
-            'objet' => $this->objet,
-            'destinataire_id' => $this->destinataire_id,
-            'nom_dechargeur' => $this->nom_dechargeur,
-            'statut' => 'en_cours',
-        ];
-        
-        // Gérer le document
-        if ($this->document) {
-            $data['document_path'] = $this->document->store('courriers', 'public');
+        // Supprimer le document associé s'il existe
+        if ($courrier->document_path) {
+            Storage::disk('public')->delete($courrier->document_path);
         }
         
-        // Créer le courrier
-        $courrier = CourriersEntrants::create($data);
+        $courrier->delete();
         
-        // Associer les destinataires additionnels (cc)
-        if (!empty($this->additional_destinataires)) {
-            $courrier->destinataires()->attach($this->additional_destinataires);
-        }
-        
-        session()->flash('success', 'Courrier créé avec succès. Numéro d\'ordre: ' . $courrier->numero_ordre);
-        
-        $this->reset();
-        $this->closeModal();
-        $this->emit('refreshCourriers');
+        session()->flash('success', 'Courrier supprimé avec succès.');
+    }
+    
+    public function resetFilters()
+    {
+        $this->reset(['search', 'status', 'dateFrom', 'dateTo', 'type']);
     }
 }

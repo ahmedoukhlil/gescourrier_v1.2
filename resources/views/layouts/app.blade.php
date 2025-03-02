@@ -3,54 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gestion des Courriers</title>
-    
-    <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    
-    <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}" defer></script>
-    
+    <title>Gestion de Courrier - @yield('title', 'Accueil')</title>
+    <!-- Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     @livewireStyles
+    @stack('styles')
 </head>
-<body class="bg-gray-100 min-h-screen">
-    <div class="flex flex-col min-h-screen">
-        <!-- En-tête -->
-        <header class="bg-white shadow">
-            <div class="container mx-auto px-4 py-6">
-                <div class="flex justify-between items-center">
-                    <h1 class="text-2xl font-bold text-gray-800">Système de Gestion des Courriers</h1>
-                    <!-- Menu de navigation, profil utilisateur, etc. -->
+<body class="bg-gray-100">
+    <div class="min-h-screen flex flex-col">
+        <!-- Navigation -->
+        <nav class="bg-blue-600 shadow-lg">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex justify-between h-16">
+                    <div class="flex">
+                        <div class="flex-shrink-0 flex items-center">
+                            <span class="text-white font-bold text-xl">Gestion de Courrier</span>
+                        </div>
+                        <div class="ml-6 flex items-center space-x-4">
+                            <a href="{{ route('courriers.index') }}" class="text-white hover:bg-blue-500 px-3 py-2 rounded-md text-sm font-medium">Courriers Entrants</a>
+                            <a href="{{ route('courriers-sortants.index') }}" class="text-white hover:bg-blue-500 px-3 py-2 rounded-md text-sm font-medium">Courriers Sortans</a>
+
+                        </div>
+                    </div>
                 </div>
             </div>
-        </header>
-        
-        <!-- Contenu principal -->
-        <main class="flex-grow container mx-auto px-4 py-6">
-            <!-- Contenu de la page -->
-            @yield('content')
-            
-            <!-- Important : Chargement des deux composants Livewire -->
-            <div>
-                @livewire('courriers-list')
-                @livewire('create-courrier-modal')
+        </nav>
+
+        <!-- Page Content -->
+        <main class="py-4 flex-grow">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                @if (session('success'))
+                    <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                        <span class="block sm:inline">{{ session('success') }}</span>
+                    </div>
+                @endif
+                
+                @if (session('error'))
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                        <span class="block sm:inline">{{ session('error') }}</span>
+                    </div>
+                @endif
+                
+                @yield('content')
             </div>
         </main>
-        
-        <!-- Pied de page -->
-        <footer class="bg-white shadow-inner py-4">
-            <div class="container mx-auto px-4">
-                <p class="text-center text-gray-600 text-sm">&copy; {{ date('Y') }} - Système de Gestion des Courriers</p>
+
+        <!-- Footer -->
+        <footer class="bg-white shadow-inner py-3">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <p class="text-center text-gray-500 text-sm">&copy; {{ date('Y') }} Gestion de Courrier. Tous droits réservés.</p>
             </div>
         </footer>
     </div>
-    
+
     @livewireScripts
-    
-    <!-- SweetAlert pour les confirmations -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <!-- Script pour gérer les confirmations de suppression -->
     <script>
         window.addEventListener('swal:confirm', event => {
             Swal.fire({
@@ -69,5 +78,6 @@
             });
         });
     </script>
+    @stack('scripts')
 </body>
 </html>
