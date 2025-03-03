@@ -24,8 +24,12 @@
             <p>{{ session('error') }}</p>
         </div>
     @endif
+    
 
     <!-- Composant Livewire pour la liste des courriers sortants -->
     @livewire('courriers-sortants-list')
+    
+    <!-- Composant pour gérer l'upload des décharges -->
+    @livewire('upload-decharge-modal')
 </div>
 @endsection

@@ -5,13 +5,11 @@ namespace App\Http\Livewire;
 use App\Models\CourrierSortant;
 use Livewire\Component;
 use Livewire\WithPagination;
-use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
 
 class CourriersSortantsList extends Component
 {
     use WithPagination;
-    use WithFileUploads;
     
     protected $paginationTheme = 'tailwind';
     
@@ -20,21 +18,11 @@ class CourriersSortantsList extends Component
     public $dateTo = '';
     public $filter = '';
     
-    // Variables pour le modal
-    public $isModalOpen = false;
-    public $selectedCourrier = null;
-    public $selectedCourrierId = null;
-    public $decharge = null;
-    
     protected $listeners = [
         'courrierSortantCreated' => '$refresh',
         'dechargeUploaded' => '$refresh',
         'refreshCourriersSortants' => '$refresh',
         'delete' => 'delete'
-    ];
-    
-    protected $rules = [
-        'decharge' => 'required|file|max:10240', // 10MB max
     ];
     
     public function updatingSearch()
@@ -72,51 +60,7 @@ class CourriersSortantsList extends Component
     // Méthode pour ouvrir le modal de décharge
     public function openDechargeModal($id)
     {
-        $this->selectedCourrierId = $id;
-        $this->selectedCourrier = CourrierSortant::find($id);
-        $this->isModalOpen = true;
-        $this->resetValidation();
-        $this->reset(['decharge']);
-    }
-    
-    // Méthode pour fermer le modal
-    public function closeDechargeModal()
-    {
-        $this->isModalOpen = false;
-        $this->selectedCourrier = null;
-        $this->selectedCourrierId = null;
-        $this->decharge = null;
-    }
-    
-    public function saveDecharge()
-    {
-        $this->validate();
-        
-        // Vérification que le courrier est toujours valide
-        if (!$this->selectedCourrier) {
-            $this->selectedCourrier = CourrierSortant::find($this->selectedCourrierId);
-            if (!$this->selectedCourrier) {
-                session()->flash('error', 'Le courrier sélectionné n\'existe plus.');
-                $this->closeDechargeModal();
-                return;
-            }
-        }
-        
-        // Supprimer l'ancienne décharge si elle existe
-        if ($this->selectedCourrier->decharge) {
-            Storage::disk('public')->delete($this->selectedCourrier->decharge);
-        }
-        
-        // Enregistrer la nouvelle décharge
-        $path = $this->decharge->store('decharges', 'public');
-        
-        $this->selectedCourrier->update([
-            'decharge' => $path,
-            'decharge_manquante' => false
-        ]);
-        
-        $this->closeDechargeModal();
-        session()->flash('success', 'Décharge ajoutée avec succès.');
+        $this->emit('openModal', $id);
     }
     
     public function render()
