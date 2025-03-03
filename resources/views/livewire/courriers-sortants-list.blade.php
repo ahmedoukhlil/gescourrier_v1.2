@@ -131,7 +131,7 @@
         {{ $courriersSortants->links() }}
     </div>
 
-    <!-- Modal de décharge -->
+    <!-- Modal de décharge intégré directement dans ce composant -->
     @if($isModalOpen)
     <div class="fixed inset-0 z-50 overflow-y-auto" style="background-color: rgba(0, 0, 0, 0.5);">
         <div class="flex items-center justify-center min-h-screen px-4">

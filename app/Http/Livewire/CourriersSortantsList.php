@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 class CourriersSortantsList extends Component
 {
     use WithPagination;
-    use WithFileUploads; // Assurez-vous d'ajouter ce trait
+    use WithFileUploads;
     
     protected $paginationTheme = 'tailwind';
     
@@ -23,6 +23,7 @@ class CourriersSortantsList extends Component
     // Variables pour le modal
     public $isModalOpen = false;
     public $selectedCourrier = null;
+    public $selectedCourrierId = null;
     public $decharge = null;
     
     protected $listeners = [
@@ -70,25 +71,36 @@ class CourriersSortantsList extends Component
     
     // Méthode pour ouvrir le modal de décharge
     public function openDechargeModal($id)
-{
-    $this->selectedCourrier = CourrierSortant::find($id);
-    if ($this->selectedCourrier) {
+    {
+        $this->selectedCourrierId = $id;
+        $this->selectedCourrier = CourrierSortant::find($id);
         $this->isModalOpen = true;
-        $this->reset('decharge'); // Réinitialiser le champ de décharge
         $this->resetValidation();
+        $this->reset(['decharge']);
     }
-}
+    
     // Méthode pour fermer le modal
     public function closeDechargeModal()
     {
         $this->isModalOpen = false;
         $this->selectedCourrier = null;
+        $this->selectedCourrierId = null;
         $this->decharge = null;
     }
     
     public function saveDecharge()
     {
         $this->validate();
+        
+        // Vérification que le courrier est toujours valide
+        if (!$this->selectedCourrier) {
+            $this->selectedCourrier = CourrierSortant::find($this->selectedCourrierId);
+            if (!$this->selectedCourrier) {
+                session()->flash('error', 'Le courrier sélectionné n\'existe plus.');
+                $this->closeDechargeModal();
+                return;
+            }
+        }
         
         // Supprimer l'ancienne décharge si elle existe
         if ($this->selectedCourrier->decharge) {
@@ -105,7 +117,6 @@ class CourriersSortantsList extends Component
         
         $this->closeDechargeModal();
         session()->flash('success', 'Décharge ajoutée avec succès.');
-        $this->emit('refreshCourriersSortants');
     }
     
     public function render()

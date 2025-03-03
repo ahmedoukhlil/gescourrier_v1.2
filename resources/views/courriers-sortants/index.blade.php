@@ -1,4 +1,3 @@
-<!-- resources/views/courriers-sortants/index.blade.php -->
 @extends('layouts.app')
 
 @section('title', 'Gestion des Courriers Sortants')
@@ -9,7 +8,7 @@
         <h1 class="text-2xl font-bold text-gray-800">Gestion des Courriers Sortants</h1>
         
         <div class="flex space-x-2">
-            <!-- Composant Livewire pour ouvrir le modal de création de courrier sortant -->
+            <!-- Composant Livewire pour créer un nouveau courrier sortant -->
             @livewire('create-courrier-sortant-modal')
         </div>
     </div>
@@ -20,9 +19,13 @@
         </div>
     @endif
 
+    @if(session('error'))
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+            <p>{{ session('error') }}</p>
+        </div>
+    @endif
+
     <!-- Composant Livewire pour la liste des courriers sortants -->
     @livewire('courriers-sortants-list')
-
-
 </div>
 @endsection

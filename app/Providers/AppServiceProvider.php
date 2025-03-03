@@ -33,7 +33,7 @@ class AppServiceProvider extends ServiceProvider
         Livewire::component('courriers-list', CourriersList::class);
         Livewire::component('create-courrier-sortant-modal', CreateCourrierSortantModal::class);
         Livewire::component('courriers-sortants-list', CourriersSortantsList::class);
-        Livewire::component('upload-decharge-modal', UploadDechargeModal::class);
+        
 
     }
 }
