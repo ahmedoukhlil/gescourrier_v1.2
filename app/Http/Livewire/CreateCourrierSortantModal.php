@@ -1,4 +1,5 @@
 <?php
+// app/Http/Livewire/CreateCourrierSortantModal.php
 
 namespace App\Http\Livewire;
 
@@ -25,11 +26,20 @@ class CreateCourrierSortantModal extends Component
     
     protected $rules = [
         'objet' => 'required|string|max:255',
-        'destinataire' => 'required|string|max:255',
+        'destinataireSearch' => 'required|string|max:255', // Validation sur le champ de recherche
         'date' => 'required|date',
         'courrier_entrant_id' => 'nullable|exists:courriers_entrants,id',
     ];
-    
+
+    protected $listeners = [
+        'closeDropdowns' => 'closeDropdowns'
+    ];
+
+    public function closeDropdowns()
+{
+    $this->showDestinataireDropdown = false;
+}
+
     public function mount()
     {
         // Initialiser la date à aujourd'hui
@@ -39,12 +49,15 @@ class CreateCourrierSortantModal extends Component
     public function openModal()
     {
         $this->isOpen = true;
-        $this->resetExcept('date');
+        $this->reset(['objet', 'destinataireSearch', 'destinataire', 'courrier_entrant_id', 
+                     'destinatairesResults', 'showDestinataireDropdown', 'selectedDestinataire']);
+        $this->date = Carbon::today()->format('Y-m-d');
     }
     
     public function closeModal()
     {
         $this->isOpen = false;
+        $this->resetValidation();
     }
     
     public function updatedCourrierEntrantId()
@@ -53,14 +66,19 @@ class CreateCourrierSortantModal extends Component
             $courrierEntrant = CourriersEntrants::find($this->courrier_entrant_id);
             if ($courrierEntrant) {
                 $this->objet = 'Réponse à: ' . $courrierEntrant->objet;
-                $this->destinataire = $courrierEntrant->expediteur;
                 $this->destinataireSearch = $courrierEntrant->expediteur;
+                $this->destinataire = $courrierEntrant->expediteur;
+                
+                // Vérifier si ce destinataire existe déjà
+                $this->checkExistingDestinataire();
             }
         }
     }
     
     public function updatedDestinataireSearch()
     {
+        $this->destinataire = $this->destinataireSearch;
+        
         if (strlen($this->destinataireSearch) > 2) {
             $this->destinatairesResults = DestinataireSortant::where('nom', 'like', '%' . $this->destinataireSearch . '%')
                 ->orWhere('organisation', 'like', '%' . $this->destinataireSearch . '%')
@@ -70,6 +88,7 @@ class CreateCourrierSortantModal extends Component
         } else {
             $this->destinatairesResults = [];
             $this->showDestinataireDropdown = false;
+            $this->selectedDestinataire = null;
         }
     }
     
@@ -78,28 +97,43 @@ class CreateCourrierSortantModal extends Component
         $destinataire = DestinataireSortant::find($id);
         if ($destinataire) {
             $this->selectedDestinataire = $destinataire;
-            $this->destinataire = $destinataire->nom;
             $this->destinataireSearch = $destinataire->nom;
+            $this->destinataire = $destinataire->nom;
         }
         $this->showDestinataireDropdown = false;
+    }
+    
+    private function checkExistingDestinataire()
+    {
+        // Chercher si le destinataire existe déjà
+        $existingDestinataire = DestinataireSortant::where('nom', $this->destinataireSearch)->first();
+        if ($existingDestinataire) {
+            $this->selectedDestinataire = $existingDestinataire;
+        } else {
+            $this->selectedDestinataire = null;
+        }
     }
     
     public function save()
     {
         $this->validate();
         
-        // Vérifier si le destinataire existe déjà
+        // Vérifier ou créer le destinataire
         $destinataireId = null;
+        $this->destinataire = $this->destinataireSearch; // S'assurer que destinataire est à jour
+        
         if ($this->selectedDestinataire) {
             $destinataireId = $this->selectedDestinataire->id;
         } else {
             // Si le destinataire n'existe pas, on le crée
             $destinataire = DestinataireSortant::create([
                 'nom' => $this->destinataire,
+                'organisation' => null, // Vous pouvez ajouter d'autres champs si nécessaire
             ]);
             $destinataireId = $destinataire->id;
         }
         
+        // Créer le courrier sortant
         CourrierSortant::create([
             'objet' => $this->objet,
             'destinataire' => $this->destinataire,

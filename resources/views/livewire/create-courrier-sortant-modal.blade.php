@@ -63,18 +63,47 @@
                             @error('objet') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
 
-                        <div>
-                            <label for="destinataire" class="block text-sm font-medium text-gray-700">Destinataire</label>
-                            <input 
-                                wire:model="destinataire" 
-                                type="text" 
-                                id="destinataire" 
-                                class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                                required
-                            >
-                            @error('destinataire') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                        </div>
-
+<div class="relative">
+    <label for="destinataireSearch" class="block text-sm font-medium text-gray-700">Destinataire</label>
+    <input 
+        wire:model.debounce.300ms="destinataireSearch" 
+        type="text" 
+        id="destinataireSearch" 
+        class="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+        autocomplete="off"
+        placeholder="Commencez à saisir le nom du destinataire..."
+        required
+    >
+    @error('destinataire') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+    
+    <!-- Dropdown pour l'autocomplétion -->
+    @if($showDestinataireDropdown && count($destinatairesResults) > 0)
+    <div class="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md border border-gray-300 max-h-60 overflow-y-auto">
+        <ul class="py-1">
+            @foreach($destinatairesResults as $result)
+            <li>
+                <button
+                    type="button"
+                    wire:click="selectDestinataire({{ $result->id }})"
+                    class="w-full text-left px-4 py-2 text-sm hover:bg-gray-100 focus:bg-gray-100"
+                >
+                    <span class="font-medium">{{ $result->nom }}</span>
+                    @if($result->organisation)
+                    <span class="text-gray-500 ml-2">({{ $result->organisation }})</span>
+                    @endif
+                </button>
+            </li>
+            @endforeach
+        </ul>
+    </div>
+    @elseif($showDestinataireDropdown && $destinataireSearch && count($destinatairesResults) === 0)
+    <div class="absolute z-10 mt-1 w-full bg-white shadow-lg rounded-md border border-gray-300">
+        <div class="px-4 py-2 text-sm text-gray-700">
+            Aucun résultat trouvé. Le destinataire sera créé automatiquement.
+        </div>
+    </div>
+    @endif
+</div>
                         <div>
                             <label for="date" class="block text-sm font-medium text-gray-700">Date</label>
                             <input 

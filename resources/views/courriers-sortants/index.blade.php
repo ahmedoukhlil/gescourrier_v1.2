@@ -22,5 +22,7 @@
 
     <!-- Composant Livewire pour la liste des courriers sortants -->
     @livewire('courriers-sortants-list')
+
+
 </div>
 @endsection

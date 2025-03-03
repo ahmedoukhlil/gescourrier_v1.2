@@ -57,6 +57,26 @@
             </div>
         </footer>
     </div>
+    <!-- À ajouter dans resources/views/layouts/app.blade.php avant @livewireScripts -->
+<script>
+    document.addEventListener('click', function(event) {
+        // Fermer les dropdowns d'autocomplétion quand on clique ailleurs
+        const dropdowns = document.querySelectorAll('[wire\\:model\\.debounce\\.300ms="destinataireSearch"]');
+        let clickedInside = false;
+        
+        dropdowns.forEach(dropdown => {
+            if (dropdown.contains(event.target) || dropdown.parentElement.contains(event.target)) {
+                clickedInside = true;
+            }
+        });
+        
+        if (!clickedInside) {
+            // Déclencher l'événement Livewire pour fermer les dropdowns
+            window.livewire.emit('closeDropdowns');
+        }
+    });
+</script>
+
 
     @livewireScripts
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

@@ -70,13 +70,14 @@ class CourriersSortantsList extends Component
     
     // Méthode pour ouvrir le modal de décharge
     public function openDechargeModal($id)
-    {
-        $this->selectedCourrier = CourrierSortant::find($id);
+{
+    $this->selectedCourrier = CourrierSortant::find($id);
+    if ($this->selectedCourrier) {
         $this->isModalOpen = true;
+        $this->reset('decharge'); // Réinitialiser le champ de décharge
         $this->resetValidation();
-        $this->decharge = null;
     }
-    
+}
     // Méthode pour fermer le modal
     public function closeDechargeModal()
     {
@@ -85,14 +86,9 @@ class CourriersSortantsList extends Component
         $this->decharge = null;
     }
     
-    // Méthode pour sauvegarder la décharge
     public function saveDecharge()
     {
         $this->validate();
-        
-        if (!$this->selectedCourrier) {
-            return;
-        }
         
         // Supprimer l'ancienne décharge si elle existe
         if ($this->selectedCourrier->decharge) {
@@ -109,6 +105,7 @@ class CourriersSortantsList extends Component
         
         $this->closeDechargeModal();
         session()->flash('success', 'Décharge ajoutée avec succès.');
+        $this->emit('refreshCourriersSortants');
     }
     
     public function render()
