@@ -11,6 +11,7 @@ class CourriersSortantsList extends Component
 {
     use WithPagination;
     
+    // Match the pagination theme used in CourriersList
     protected $paginationTheme = 'tailwind';
     
     public $search = '';
@@ -18,23 +19,52 @@ class CourriersSortantsList extends Component
     public $dateTo = '';
     public $filter = '';
     
+    // Include the same queryString approach as in CourriersList
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'dateFrom' => ['except' => ''],
+        'dateTo' => ['except' => ''],
+        'filter' => ['except' => '']
+    ];
+    
+    // Match the listeners pattern in CourriersList
     protected $listeners = [
         'courrierSortantCreated' => '$refresh',
         'dechargeUploaded' => '$refresh',
-        'refreshCourriersSortants' => '$refresh',
         'delete' => 'delete'
     ];
     
+    // Reset page when updating search
     public function updatingSearch()
     {
         $this->resetPage();
     }
     
+    // Reset page when updating filter
+    public function updatingFilter()
+    {
+        $this->resetPage();
+    }
+    
+    // Reset page when updating date filters
+    public function updatingDateFrom()
+    {
+        $this->resetPage();
+    }
+    
+    public function updatingDateTo()
+    {
+        $this->resetPage();
+    }
+    
+    // Reset all filters
     public function resetFilters()
     {
         $this->reset(['search', 'dateFrom', 'dateTo', 'filter']);
+        $this->resetPage();
     }
     
+    // Confirm deletion modal
     public function deleteConfirm($id)
     {
         $this->dispatchBrowserEvent('swal:confirm', [
@@ -44,6 +74,7 @@ class CourriersSortantsList extends Component
         ]);
     }
     
+    // Handle delete action
     public function delete($id)
     {
         $courrierSortant = CourrierSortant::findOrFail($id);
@@ -57,13 +88,13 @@ class CourriersSortantsList extends Component
         session()->flash('success', 'Courrier sortant supprimé avec succès.');
     }
     
-    // Méthode pour ouvrir le modal de décharge
+    // Open discharge modal
     public function openDechargeModal($id)
     {
-        // Utilisez emitTo pour cibler directement le composant spécifique
         $this->emitTo('upload-decharge-modal', 'openModal', $id);
     }
     
+    // Render function following CourriersList pattern
     public function render()
     {
         $query = CourrierSortant::with('courrierEntrant');
@@ -90,10 +121,8 @@ class CourriersSortantsList extends Component
             $query->where('decharge_manquante', true);
         }
         
-        $courriersSortants = $query->orderBy('date', 'desc')->paginate(10);
-        
         return view('livewire.courriers-sortants-list', [
-            'courriersSortants' => $courriersSortants
+            'courriersSortants' => $query->orderBy('date', 'desc')->paginate(10)
         ]);
     }
 }

@@ -29,3 +29,19 @@
     @livewire('courriers-list')
 </div>
 @endsection
+<!-- In resources/views/courriers-sortants/index.blade.php -->
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Listen for page refresh events from Livewire
+        Livewire.on('refreshCourriersSortants', () => {
+            // Can add additional JavaScript if needed
+        });
+        
+        // Handle modal events
+        window.livewire.on('openUploadModal', function(courrierSortantId) {
+            window.livewire.emit('openModal', courrierSortantId);
+        });
+    });
+</script>
+@endpush

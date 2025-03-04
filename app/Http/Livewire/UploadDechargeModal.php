@@ -18,9 +18,9 @@ class UploadDechargeModal extends Component
     public $decharge = null;
     public $dateReception;
     
+    // Match listener pattern from CreateCourrierModal
     protected $listeners = [
-        'openModal' => 'openModal',
-        'closeDropdowns' => 'closeDropdowns'
+        'openModal' => 'openModal'
     ];
     
     protected $rules = [
@@ -30,7 +30,7 @@ class UploadDechargeModal extends Component
 
     public function mount()
     {
-        // Initialiser la date de réception à aujourd'hui
+        // Initialize date to today
         $this->dateReception = Carbon::today()->format('Y-m-d');
     }
     
@@ -47,22 +47,13 @@ class UploadDechargeModal extends Component
     public function closeModal()
     {
         $this->isOpen = false;
-        $this->courrierSortant = null;
-        $this->courrierSortantId = null;
-        $this->decharge = null;
-    }
-
-    public function closeDropdowns()
-    {
-        // Cette méthode existe pour la cohérence avec CreateCourrierSortantModal
-        // Elle sera utilisée si nous ajoutons des dropdowns plus tard
     }
     
     public function save()
     {
         $this->validate();
         
-        // Vérifier que le courrier sortant existe toujours
+        // Verify the courrier sortant still exists
         if (!$this->courrierSortant) {
             $this->courrierSortant = CourrierSortant::find($this->courrierSortantId);
             if (!$this->courrierSortant) {
@@ -73,12 +64,12 @@ class UploadDechargeModal extends Component
         }
         
         try {
-            // Supprimer l'ancienne décharge si elle existe
+            // Delete existing discharge if present
             if ($this->courrierSortant->decharge) {
                 Storage::disk('public')->delete($this->courrierSortant->decharge);
             }
             
-            // Enregistrer la nouvelle décharge
+            // Save the new discharge
             $path = $this->decharge->store('decharges', 'public');
             
             $this->courrierSortant->update([
@@ -87,10 +78,11 @@ class UploadDechargeModal extends Component
                 'date_reception_decharge' => $this->dateReception
             ]);
             
+            // Follow the same pattern as CreateCourrierModal
+            session()->flash('success', 'Décharge ajoutée avec succès.');
+            
             $this->closeModal();
             $this->emit('dechargeUploaded');
-            
-            session()->flash('success', 'Décharge ajoutée avec succès.');
         } catch (\Exception $e) {
             session()->flash('error', 'Erreur lors de l\'enregistrement de la décharge: ' . $e->getMessage());
         }
