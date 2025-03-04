@@ -60,7 +60,8 @@ class CourriersSortantsList extends Component
     // Méthode pour ouvrir le modal de décharge
     public function openDechargeModal($id)
     {
-        $this->emit('openModal', $id);
+        // Utilisez emitTo pour cibler directement le composant spécifique
+        $this->emitTo('upload-decharge-modal', 'openModal', $id);
     }
     
     public function render()

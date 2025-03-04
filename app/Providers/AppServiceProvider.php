@@ -9,7 +9,7 @@ use App\Http\Livewire\CourriersList;
 use App\Http\Livewire\CourriersSortantsList;
 use App\Http\Livewire\CreateCourrierSortantModal;
 use App\Http\Livewire\UploadDechargeModal;
-use App\Http\Livewire\TestDechargeModal;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,8 +34,7 @@ class AppServiceProvider extends ServiceProvider
         Livewire::component('courriers-list', CourriersList::class);
         Livewire::component('create-courrier-sortant-modal', CreateCourrierSortantModal::class);
         Livewire::component('courriers-sortants-list', CourriersSortantsList::class);
-        Livewire::component('upload-decharge-modal', UploadDechargeModal::class);
-        Livewire::component('test-decharge-modal', TestDechargeModal::class);
+        Livewire::component('upload-decharge-modal', \App\Http\Livewire\UploadDechargeModal::class);        
 
     }
 }

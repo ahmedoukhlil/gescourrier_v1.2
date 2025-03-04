@@ -57,7 +57,6 @@
             </div>
         </footer>
     </div>
-    <!-- À ajouter dans resources/views/layouts/app.blade.php avant @livewireScripts -->
 <script>
     document.addEventListener('click', function(event) {
         // Fermer les dropdowns d'autocomplétion quand on clique ailleurs
@@ -78,7 +77,7 @@
 </script>
 
 
-    @livewireScripts
+   
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         window.addEventListener('swal:confirm', event => {
@@ -99,5 +98,7 @@
         });
     </script>
     @stack('scripts')
+    @livewireScripts
+    
 </body>
 </html>

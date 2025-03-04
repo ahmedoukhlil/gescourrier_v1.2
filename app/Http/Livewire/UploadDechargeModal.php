@@ -6,6 +6,7 @@ use App\Models\CourrierSortant;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class UploadDechargeModal extends Component
 {
@@ -15,14 +16,23 @@ class UploadDechargeModal extends Component
     public $courrierSortant = null;
     public $courrierSortantId = null;
     public $decharge = null;
+    public $dateReception;
     
     protected $listeners = [
-        'openModal' => 'openModal'
+        'openModal' => 'openModal',
+        'closeDropdowns' => 'closeDropdowns'
     ];
     
     protected $rules = [
         'decharge' => 'required|file|max:10240', // 10MB max
+        'dateReception' => 'nullable|date',
     ];
+
+    public function mount()
+    {
+        // Initialiser la date de réception à aujourd'hui
+        $this->dateReception = Carbon::today()->format('Y-m-d');
+    }
     
     public function openModal($courrierSortantId)
     {
@@ -31,6 +41,7 @@ class UploadDechargeModal extends Component
         $this->isOpen = true;
         $this->resetValidation();
         $this->reset(['decharge']);
+        $this->dateReception = Carbon::today()->format('Y-m-d');
     }
     
     public function closeModal()
@@ -39,6 +50,12 @@ class UploadDechargeModal extends Component
         $this->courrierSortant = null;
         $this->courrierSortantId = null;
         $this->decharge = null;
+    }
+
+    public function closeDropdowns()
+    {
+        // Cette méthode existe pour la cohérence avec CreateCourrierSortantModal
+        // Elle sera utilisée si nous ajoutons des dropdowns plus tard
     }
     
     public function save()
@@ -55,23 +72,28 @@ class UploadDechargeModal extends Component
             }
         }
         
-        // Supprimer l'ancienne décharge si elle existe
-        if ($this->courrierSortant->decharge) {
-            Storage::disk('public')->delete($this->courrierSortant->decharge);
+        try {
+            // Supprimer l'ancienne décharge si elle existe
+            if ($this->courrierSortant->decharge) {
+                Storage::disk('public')->delete($this->courrierSortant->decharge);
+            }
+            
+            // Enregistrer la nouvelle décharge
+            $path = $this->decharge->store('decharges', 'public');
+            
+            $this->courrierSortant->update([
+                'decharge' => $path,
+                'decharge_manquante' => false,
+                'date_reception_decharge' => $this->dateReception
+            ]);
+            
+            $this->closeModal();
+            $this->emit('dechargeUploaded');
+            
+            session()->flash('success', 'Décharge ajoutée avec succès.');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Erreur lors de l\'enregistrement de la décharge: ' . $e->getMessage());
         }
-        
-        // Enregistrer la nouvelle décharge
-        $path = $this->decharge->store('decharges', 'public');
-        
-        $this->courrierSortant->update([
-            'decharge' => $path,
-            'decharge_manquante' => false
-        ]);
-        
-        $this->closeModal();
-        $this->emit('dechargeUploaded');
-        
-        session()->flash('success', 'Décharge ajoutée avec succès.');
     }
     
     public function render()

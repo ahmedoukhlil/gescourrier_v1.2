@@ -25,11 +25,23 @@
         </div>
     @endif
     
-
     <!-- Composant Livewire pour la liste des courriers sortants -->
     @livewire('courriers-sortants-list')
     
     <!-- Composant pour gérer l'upload des décharges -->
     @livewire('upload-decharge-modal')
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Utilisation de window.livewire.on (avec un "l" minuscule)
+        window.livewire.on('openUploadModal', function(courrierSortantId) {
+            // Émission de l'événement vers le composant upload-decharge-modal
+            window.livewire.emit('openModal', courrierSortantId);
+        });
+    });
+</script>
+@endpush
+
 @endsection
