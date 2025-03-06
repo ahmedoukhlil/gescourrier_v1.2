@@ -18,7 +18,7 @@ class UploadDechargeModal extends Component
     public $decharge = null;
     public $dateReception;
     
-    // Match listener pattern from CreateCourrierModal
+    // Événements écoutés
     protected $listeners = [
         'openModal' => 'openModal'
     ];
@@ -30,7 +30,7 @@ class UploadDechargeModal extends Component
 
     public function mount()
     {
-        // Initialize date to today
+        // Initialiser la date à aujourd'hui
         $this->dateReception = Carbon::today()->format('Y-m-d');
     }
     
@@ -53,7 +53,7 @@ class UploadDechargeModal extends Component
     {
         $this->validate();
         
-        // Verify the courrier sortant still exists
+        // Vérifier que le courrier sortant existe toujours
         if (!$this->courrierSortant) {
             $this->courrierSortant = CourrierSortant::find($this->courrierSortantId);
             if (!$this->courrierSortant) {
@@ -64,12 +64,12 @@ class UploadDechargeModal extends Component
         }
         
         try {
-            // Delete existing discharge if present
+            // Supprimer la décharge existante si présente
             if ($this->courrierSortant->decharge) {
                 Storage::disk('public')->delete($this->courrierSortant->decharge);
             }
             
-            // Save the new discharge
+            // Enregistrer la nouvelle décharge
             $path = $this->decharge->store('decharges', 'public');
             
             $this->courrierSortant->update([
@@ -78,11 +78,13 @@ class UploadDechargeModal extends Component
                 'date_reception_decharge' => $this->dateReception
             ]);
             
-            // Follow the same pattern as CreateCourrierModal
             session()->flash('success', 'Décharge ajoutée avec succès.');
             
             $this->closeModal();
+            
+            // Émettre un événement pour rafraîchir la liste
             $this->emit('dechargeUploaded');
+            $this->emit('refreshCourriersSortants');
         } catch (\Exception $e) {
             session()->flash('error', 'Erreur lors de l\'enregistrement de la décharge: ' . $e->getMessage());
         }

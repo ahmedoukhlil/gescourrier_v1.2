@@ -34,3 +34,27 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Écouter les événements de rafraîchissement de la page
+        window.livewire.on('courrierSortantCreated', () => {
+            console.log('Courrier sortant créé avec succès');
+            // Reload pour être sûr que les données sont à jour
+            // Livewire.emit('$refresh');
+        });
+        
+        window.livewire.on('dechargeUploaded', () => {
+            console.log('Décharge uploadée avec succès');
+            // Reload pour être sûr que les données sont à jour
+            // Livewire.emit('$refresh');
+        });
+        
+        // Gérer les événements du modal
+        window.livewire.on('openModal', (courrierSortantId) => {
+            console.log('Ouverture du modal pour le courrier ID:', courrierSortantId);
+        });
+    });
+</script>
+@endpush

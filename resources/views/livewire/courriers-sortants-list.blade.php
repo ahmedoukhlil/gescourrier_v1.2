@@ -1,4 +1,3 @@
-<!-- resources/views/livewire/courriers-sortants-list.blade.php -->
 <div>
     <div class="mb-4 bg-white p-4 rounded shadow">
         <div class="flex flex-wrap items-center justify-between mb-4">
@@ -130,4 +129,6 @@
     <div class="mt-4">
         {{ $courriersSortants->links() }}
     </div>
+    
+   
 </div>

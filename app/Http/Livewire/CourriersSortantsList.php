@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\CourrierSortant;
+use App\Models\CourriersEntrants;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Storage;
@@ -11,15 +12,16 @@ class CourriersSortantsList extends Component
 {
     use WithPagination;
     
-    // Match the pagination theme used in CourriersList
+    // Définir explicitement le thème de pagination
     protected $paginationTheme = 'tailwind';
     
+    // Variables pour les filtres
     public $search = '';
     public $dateFrom = '';
     public $dateTo = '';
     public $filter = '';
     
-    // Include the same queryString approach as in CourriersList
+    // Définir les paramètres d'URL pour les filtres
     protected $queryString = [
         'search' => ['except' => ''],
         'dateFrom' => ['except' => ''],
@@ -27,26 +29,24 @@ class CourriersSortantsList extends Component
         'filter' => ['except' => '']
     ];
     
-    // Match the listeners pattern in CourriersList
+    // Listeners pour les événements Livewire
     protected $listeners = [
         'courrierSortantCreated' => '$refresh',
         'dechargeUploaded' => '$refresh',
         'delete' => 'delete'
     ];
     
-    // Reset page when updating search
+    // Réinitialiser la pagination lors de la mise à jour des filtres
     public function updatingSearch()
     {
         $this->resetPage();
     }
     
-    // Reset page when updating filter
     public function updatingFilter()
     {
         $this->resetPage();
     }
     
-    // Reset page when updating date filters
     public function updatingDateFrom()
     {
         $this->resetPage();
@@ -57,14 +57,14 @@ class CourriersSortantsList extends Component
         $this->resetPage();
     }
     
-    // Reset all filters
+    // Réinitialiser tous les filtres
     public function resetFilters()
     {
         $this->reset(['search', 'dateFrom', 'dateTo', 'filter']);
         $this->resetPage();
     }
     
-    // Confirm deletion modal
+    // Confirmation de suppression
     public function deleteConfirm($id)
     {
         $this->dispatchBrowserEvent('swal:confirm', [
@@ -74,32 +74,39 @@ class CourriersSortantsList extends Component
         ]);
     }
     
-    // Handle delete action
+    // Supprimer un courrier sortant
     public function delete($id)
     {
-        $courrierSortant = CourrierSortant::findOrFail($id);
-        
-        if ($courrierSortant->decharge) {
-            Storage::disk('public')->delete($courrierSortant->decharge);
+        try {
+            $courrierSortant = CourrierSortant::findOrFail($id);
+            
+            // Supprimer la décharge associée si elle existe
+            if ($courrierSortant->decharge) {
+                Storage::disk('public')->delete($courrierSortant->decharge);
+            }
+            
+            $courrierSortant->delete();
+            
+            session()->flash('success', 'Courrier sortant supprimé avec succès.');
+        } catch (\Exception $e) {
+            session()->flash('error', 'Erreur lors de la suppression: ' . $e->getMessage());
         }
-        
-        $courrierSortant->delete();
-        
-        session()->flash('success', 'Courrier sortant supprimé avec succès.');
     }
     
-    // Open discharge modal
+    // Ouvrir le modal pour ajouter une décharge
     public function openDechargeModal($id)
     {
-        $this->emitTo('upload-decharge-modal', 'openModal', $id);
+        $this->emit('openModal', $id);
     }
     
-    // Render function following CourriersList pattern
+    // Méthode de rendu qui construit la requête avec les filtres
     public function render()
     {
+        // Construire la requête de base avec la relation
         $query = CourrierSortant::with('courrierEntrant');
         
-        if ($this->search) {
+        // Appliquer le filtre de recherche
+        if (!empty($this->search)) {
             $query->where(function($q) {
                 $q->where('destinataire', 'like', '%' . $this->search . '%')
                   ->orWhere('objet', 'like', '%' . $this->search . '%')
@@ -107,22 +114,31 @@ class CourriersSortantsList extends Component
             });
         }
         
-        if ($this->dateFrom) {
+        // Appliquer les filtres de date
+        if (!empty($this->dateFrom)) {
             $query->whereDate('date', '>=', $this->dateFrom);
         }
         
-        if ($this->dateTo) {
+        if (!empty($this->dateTo)) {
             $query->whereDate('date', '<=', $this->dateTo);
         }
         
+        // Appliquer le filtre de décharge
         if ($this->filter === 'with-decharge') {
             $query->where('decharge_manquante', false);
         } elseif ($this->filter === 'without-decharge') {
             $query->where('decharge_manquante', true);
         }
         
+        // Obtenir les résultats paginés
+        $courriersSortants = $query->orderBy('date', 'desc')->paginate(10);
+        
+        // Journaliser le nombre de résultats (pour le débogage)
+        \Log::info('Nombre de courriers sortants trouvés: ' . $courriersSortants->total());
+        
+        // Rendre la vue avec les résultats
         return view('livewire.courriers-sortants-list', [
-            'courriersSortants' => $query->orderBy('date', 'desc')->paginate(10)
+            'courriersSortants' => $courriersSortants
         ]);
     }
 }
