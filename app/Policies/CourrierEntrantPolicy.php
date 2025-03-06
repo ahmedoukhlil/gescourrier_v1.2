@@ -2,11 +2,11 @@
 
 namespace App\Policies;
 
-use App\Models\CourrierSortant;
+use App\Models\CourriersEntrants;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
-class CourrierSortantPolicy
+class CourrierEntrantPolicy
 {
     use HandlesAuthorization;
 
@@ -25,10 +25,10 @@ class CourrierSortantPolicy
      * Determine whether the user can view the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\CourrierSortant  $courrierSortant
+     * @param  \App\Models\CourriersEntrants  $courriersEntrants
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, CourrierSortant $courrierSortant)
+    public function view(User $user, CourriersEntrants $courriersEntrants)
     {
         return $user->canViewCourriers();
     }
@@ -48,10 +48,10 @@ class CourrierSortantPolicy
      * Determine whether the user can update the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\CourrierSortant  $courrierSortant
+     * @param  \App\Models\CourriersEntrants  $courriersEntrants
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, CourrierSortant $courrierSortant)
+    public function update(User $user, CourriersEntrants $courriersEntrants)
     {
         return $user->canManageCourriers();
     }
@@ -60,34 +60,22 @@ class CourrierSortantPolicy
      * Determine whether the user can delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\CourrierSortant  $courrierSortant
+     * @param  \App\Models\CourriersEntrants  $courriersEntrants
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, CourrierSortant $courrierSortant)
+    public function delete(User $user, CourriersEntrants $courriersEntrants)
     {
         return $user->hasRole(['admin', 'gestionnaire']);
-    }
-
-    /**
-     * Determine whether the user can upload decharge.
-     *
-     * @param  \App\Models\User  $user
-     * @param  \App\Models\CourrierSortant  $courrierSortant
-     * @return \Illuminate\Auth\Access\Response|bool
-     */
-    public function uploadDecharge(User $user, CourrierSortant $courrierSortant)
-    {
-        return $user->canManageCourriers();
     }
 
     /**
      * Determine whether the user can restore the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\CourrierSortant  $courrierSortant
+     * @param  \App\Models\CourriersEntrants  $courriersEntrants
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, CourrierSortant $courrierSortant)
+    public function restore(User $user, CourriersEntrants $courriersEntrants)
     {
         return $user->isAdmin();
     }
@@ -96,10 +84,10 @@ class CourrierSortantPolicy
      * Determine whether the user can permanently delete the model.
      *
      * @param  \App\Models\User  $user
-     * @param  \App\Models\CourrierSortant  $courrierSortant
+     * @param  \App\Models\CourriersEntrants  $courriersEntrants
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, CourrierSortant $courrierSortant)
+    public function forceDelete(User $user, CourriersEntrants $courriersEntrants)
     {
         return $user->isAdmin();
     }

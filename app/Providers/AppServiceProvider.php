@@ -9,6 +9,8 @@ use App\Http\Livewire\CourriersList;
 use App\Http\Livewire\CourriersSortantsList;
 use App\Http\Livewire\CreateCourrierSortantModal;
 use App\Http\Livewire\UploadDechargeModal;
+use Illuminate\Support\Facades\Blade;
+
 
 
 class AppServiceProvider extends ServiceProvider
@@ -34,7 +36,10 @@ class AppServiceProvider extends ServiceProvider
         Livewire::component('courriers-list', CourriersList::class);
         Livewire::component('create-courrier-sortant-modal', CreateCourrierSortantModal::class);
         Livewire::component('courriers-sortants-list', CourriersSortantsList::class);
-        Livewire::component('upload-decharge-modal', \App\Http\Livewire\UploadDechargeModal::class);        
+        Livewire::component('upload-decharge-modal', \App\Http\Livewire\UploadDechargeModal::class);      
+        Blade::component('layouts.app', \App\View\Components\AppLayout::class);
+ 
+ 
 
     }
 }

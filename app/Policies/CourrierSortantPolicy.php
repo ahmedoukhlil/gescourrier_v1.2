@@ -18,7 +18,7 @@ class CourrierSortantPolicy
      */
     public function viewAny(User $user)
     {
-        //
+        return $user->canViewCourriers();
     }
 
     /**
@@ -30,7 +30,7 @@ class CourrierSortantPolicy
      */
     public function view(User $user, CourrierSortant $courrierSortant)
     {
-        //
+        return $user->canViewCourriers();
     }
 
     /**
@@ -41,7 +41,7 @@ class CourrierSortantPolicy
      */
     public function create(User $user)
     {
-        //
+        return $user->canManageCourriers();
     }
 
     /**
@@ -53,7 +53,7 @@ class CourrierSortantPolicy
      */
     public function update(User $user, CourrierSortant $courrierSortant)
     {
-        //
+        return $user->canManageCourriers();
     }
 
     /**
@@ -65,7 +65,19 @@ class CourrierSortantPolicy
      */
     public function delete(User $user, CourrierSortant $courrierSortant)
     {
-        //
+        return $user->hasRole(['admin', 'gestionnaire']);
+    }
+
+    /**
+     * Determine whether the user can upload a discharge document.
+     *
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\CourrierSortant  $courrierSortant
+     * @return \Illuminate\Auth\Access\Response|bool
+     */
+    public function uploadDecharge(User $user, CourrierSortant $courrierSortant)
+    {
+        return $user->canManageCourriers();
     }
 
     /**
@@ -77,7 +89,7 @@ class CourrierSortantPolicy
      */
     public function restore(User $user, CourrierSortant $courrierSortant)
     {
-        //
+        return $user->isAdmin();
     }
 
     /**
@@ -89,6 +101,6 @@ class CourrierSortantPolicy
      */
     public function forceDelete(User $user, CourrierSortant $courrierSortant)
     {
-        //
+        return $user->isAdmin();
     }
 }
