@@ -54,11 +54,12 @@ class User extends Authenticatable
     /**
      * Relation many-to-many avec les courriers (pour les destinataires en copie)
      */
-    public function courriers()
-    {
-        return $this->belongsToMany(CourriersEntrants::class, 'courrier_user', 'user_id', 'courrier_id')
-                    ->withTimestamps();
-    }
+   // Dans App\Models\User
+public function courriers()
+{
+    return $this->belongsToMany(CourriersEntrants::class, 'courrier_user', 'user_id', 'courrier_entrant_id')
+                ->withTimestamps();
+}
 
     /**
      * Relation one-to-many avec les courriers (pour le destinataire principal)

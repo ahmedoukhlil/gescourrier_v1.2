@@ -51,11 +51,12 @@ class CourriersEntrants extends Model
     }
     
     // Relation many-to-many avec les destinataires en copie
-    public function destinataires()
-    {
-        return $this->belongsToMany(User::class, 'courrier_user', 'courrier_id', 'user_id')
-                    ->withTimestamps();
-    }
+
+public function destinataires()
+{
+    return $this->belongsToMany(User::class, 'courrier_user', 'courrier_entrant_id', 'user_id')
+                ->withTimestamps();
+}
     
     // Relation avec les courriers sortants
     public function courriersSortants()
