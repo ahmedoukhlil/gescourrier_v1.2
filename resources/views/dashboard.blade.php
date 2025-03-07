@@ -42,17 +42,17 @@
 
                         <!-- Card Destinataires -->
                         <div class="bg-purple-50 p-6 rounded-lg shadow-md">
-                            <div class="flex items-center mb-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                                </svg>
-                                <h4 class="text-lg font-semibold">Destinataires</h4>
-                            </div>
-                            <p class="text-gray-600 mb-4">Gérez la liste des destinataires internes pour les courriers.</p>
-                            <a href="{{ route('destinataires.index') }}" class="inline-block bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded">
-                                Accéder
-                            </a>
-                        </div>
+    <div class="flex items-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        <h4 class="text-lg font-semibold">Utilisateurs / Destinataires</h4>
+    </div>
+    <p class="text-gray-600 mb-4">Gérez les utilisateurs du système qui peuvent aussi être destinataires de courriers.</p>
+    <a href="{{ route('users.index') }}" class="inline-block bg-purple-500 hover:bg-purple-600 text-white font-semibold py-2 px-4 rounded">
+        Accéder
+    </a>
+</div>
 
                         @can('manage-users')
                         <!-- Card Administration -->

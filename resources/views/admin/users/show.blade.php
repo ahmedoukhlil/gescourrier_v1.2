@@ -1,41 +1,31 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto px-4 py-6">
-    <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Détails de l'utilisateur</h1>
-        <div class="flex space-x-2">
-            <a href="{{ route('users.edit', $user) }}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
-                Modifier
-            </a>
-            <a href="{{ route('users.index') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded">
-                Retour à la liste
-            </a>
+<div class="mb-6">
+    <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">Informations de base</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <p class="text-sm font-medium text-gray-500">Nom</p>
+            <p class="mt-1">{{ $user->name }}</p>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Adresse email</p>
+            <p class="mt-1">{{ $user->email }}</p>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Service</p>
+            <p class="mt-1">{{ $user->service }}</p>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Date de création</p>
+            <p class="mt-1">{{ $user->created_at->format('d/m/Y H:i') }}</p>
+        </div>
+        <div>
+            <p class="text-sm font-medium text-gray-500">Dernière modification</p>
+            <p class="mt-1">{{ $user->updated_at->format('d/m/Y H:i') }}</p>
         </div>
     </div>
-
-    <div class="bg-white shadow-md rounded-lg p-6">
-        <div class="mb-6">
-            <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">Informations de base</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Nom</p>
-                    <p class="mt-1">{{ $user->name }}</p>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Adresse email</p>
-                    <p class="mt-1">{{ $user->email }}</p>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Date de création</p>
-                    <p class="mt-1">{{ $user->created_at->format('d/m/Y H:i') }}</p>
-                </div>
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Dernière modification</p>
-                    <p class="mt-1">{{ $user->updated_at->format('d/m/Y H:i') }}</p>
-                </div>
-            </div>
-        </div>
+</div>
 
         <div>
             <h2 class="text-lg font-semibold text-gray-800 border-b pb-2 mb-3">Rôles</h2>

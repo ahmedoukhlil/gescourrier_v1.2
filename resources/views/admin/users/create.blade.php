@@ -32,6 +32,15 @@
             </div>
 
             <div class="mb-4">
+                <label for="service" class="block text-gray-700 text-sm font-bold mb-2">Service</label>
+                <input type="text" name="service" id="service" value="{{ old('service') }}" required
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('service') border-red-500 @enderror">
+                @error('service')
+                    <p class="text-red-500 text-xs italic mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
                 <label for="password" class="block text-gray-700 text-sm font-bold mb-2">Mot de passe</label>
                 <input type="password" name="password" id="password" required
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('password') border-red-500 @enderror">

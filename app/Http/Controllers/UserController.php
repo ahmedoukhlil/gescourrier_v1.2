@@ -45,6 +45,7 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'service' => ['required', 'string', 'max:255'], // Ajout de la validation pour service
             'roles' => ['required', 'array'],
             'roles.*' => ['exists:roles,id'],
         ]);
@@ -52,6 +53,7 @@ class UserController extends Controller
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'service' => $validated['service'], // Ajout du service
             'password' => Hash::make($validated['password']),
         ]);
 
@@ -106,6 +108,7 @@ class UserController extends Controller
                 'max:255', 
                 Rule::unique('users')->ignore($user->id),
             ],
+            'service' => ['required', 'string', 'max:255'], // Ajout de la validation pour service
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
             'roles' => ['required', 'array'],
             'roles.*' => ['exists:roles,id'],
@@ -114,6 +117,7 @@ class UserController extends Controller
         $userData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'service' => $validated['service'], // Ajout du service
         ];
 
         // Mettre à jour le mot de passe uniquement s'il est fourni
@@ -150,6 +154,12 @@ class UserController extends Controller
         })->count() <= 1) {
             return redirect()->route('users.index')
                 ->with('error', 'Impossible de supprimer le seul administrateur du système.');
+        }
+
+        // Vérifier si l'utilisateur est utilisé comme destinataire dans des courriers
+        if ($user->courriersDestines()->exists() || $user->courriers()->exists()) {
+            return redirect()->route('users.index')
+                ->with('error', 'Cet utilisateur ne peut pas être supprimé car il est utilisé comme destinataire dans des courriers.');
         }
 
         $user->delete();

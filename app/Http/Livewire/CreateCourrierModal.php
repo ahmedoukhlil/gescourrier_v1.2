@@ -3,7 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\CourriersEntrants;
-use App\Models\Destinataire;
+use App\Models\User;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -16,7 +16,7 @@ class CreateCourrierModal extends Component
     public $expediteur;
     public $type = 'normal';
     public $objet;
-    public $destinataire_id;
+    public $user_id; // Modifié de destinataire_id à user_id
     public $nom_dechargeur;
     public $document;
     public $additional_destinataires = [];
@@ -25,11 +25,11 @@ class CreateCourrierModal extends Component
         'expediteur' => 'required|string|max:255',
         'type' => 'required|in:urgent,confidentiel,normal',
         'objet' => 'required|string|max:255',
-        'destinataire_id' => 'required|exists:destinataires,id',
+        'user_id' => 'required|exists:users,id', // Modifié
         'nom_dechargeur' => 'required|string|max:255',
         'document' => 'nullable|file|max:10240',
         'additional_destinataires' => 'nullable|array',
-        'additional_destinataires.*' => 'exists:destinataires,id',
+        'additional_destinataires.*' => 'exists:users,id', // Modifié
     ];
     
     public function openModal()
@@ -40,7 +40,7 @@ class CreateCourrierModal extends Component
             'expediteur', 
             'type', 
             'objet', 
-            'destinataire_id', 
+            'user_id', // Modifié
             'nom_dechargeur', 
             'document',
             'additional_destinataires'
@@ -55,7 +55,7 @@ class CreateCourrierModal extends Component
     public function render()
     {
         return view('livewire.create-courrier-modal', [
-            'destinataires' => Destinataire::orderBy('nom')->get()
+            'destinataires' => User::orderBy('name')->get() // Modifié pour utiliser User au lieu de Destinataire
         ]);
     }
     
@@ -67,7 +67,7 @@ class CreateCourrierModal extends Component
             'expediteur' => $this->expediteur,
             'type' => $this->type,
             'objet' => $this->objet,
-            'destinataire_id' => $this->destinataire_id,
+            'user_id' => $this->user_id, // Modifié
             'nom_dechargeur' => $this->nom_dechargeur,
             'statut' => 'en_cours',
         ];

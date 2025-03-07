@@ -58,21 +58,21 @@
                         </div>
 
                         <div>
-                            <label for="destinataire_id" class="block text-sm font-medium text-gray-700">Destinataire Principal</label>
-                            <select wire:model.defer="destinataire_id" id="destinataire_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                            <label for="user_id" class="block text-sm font-medium text-gray-700">Destinataire Principal</label>
+                            <select wire:model.defer="user_id" id="user_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">Sélectionner un destinataire</option>
                                 @foreach($destinataires as $destinataire)
-                                    <option value="{{ $destinataire->id }}">{{ $destinataire->nom }} ({{ $destinataire->service }})</option>
+                                    <option value="{{ $destinataire->id }}">{{ $destinataire->name }} ({{ $destinataire->service }})</option>
                                 @endforeach
                             </select>
-                            @error('destinataire_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+                            @error('user_id') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                         </div>
 
                         <div>
                             <label for="additional_destinataires" class="block text-sm font-medium text-gray-700">Destinataires en copie (CC)</label>
                             <select wire:model.defer="additional_destinataires" id="additional_destinataires" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" multiple>
                                 @foreach($destinataires as $destinataire)
-                                    <option value="{{ $destinataire->id }}">{{ $destinataire->nom }} ({{ $destinataire->service }})</option>
+                                    <option value="{{ $destinataire->id }}">{{ $destinataire->name }} ({{ $destinataire->service }})</option>
                                 @endforeach
                             </select>
                             <p class="text-xs text-gray-500 mt-1">Maintenez Ctrl (ou Cmd sur Mac) pour sélectionner plusieurs destinataires.</p>

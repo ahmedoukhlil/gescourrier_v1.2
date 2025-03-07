@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'service', // Ajout du champ service
     ];
 
     /**
@@ -48,6 +49,23 @@ class User extends Authenticatable
     public function roles()
     {
         return $this->belongsToMany(Role::class);
+    }
+
+    /**
+     * Relation many-to-many avec les courriers (pour les destinataires en copie)
+     */
+    public function courriers()
+    {
+        return $this->belongsToMany(CourriersEntrants::class, 'courrier_user', 'user_id', 'courrier_id')
+                    ->withTimestamps();
+    }
+
+    /**
+     * Relation one-to-many avec les courriers (pour le destinataire principal)
+     */
+    public function courriersDestines()
+    {
+        return $this->hasMany(CourriersEntrants::class, 'user_id');
     }
 
     /**

@@ -63,7 +63,7 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/courriers-sortants/{courrierSortant}/decharge', [CourrierSortantController::class, 'updateDecharge'])->name('courriers-sortants.updateDecharge');
         
         // Routes pour les destinataires
-        Route::resource('destinataires', DestinataireController::class)->except(['destroy']);
+        // Route::resource('destinataires', DestinataireController::class)->except(['destroy']);
     });
     
     // Routes pour les utilisateurs avec des permissions de suppression

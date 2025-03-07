@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CourriersEntrants;
-use App\Models\Destinataire;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -14,13 +14,13 @@ class CourriersEntrantsController extends Controller
         $courriers = CourriersEntrants::with(['destinataireInterne', 'destinataires'])
                                 ->latest()
                                 ->paginate(10);
-        $destinataires = Destinataire::orderBy('nom')->get();
+        $destinataires = User::orderBy('name')->get();
         return view('Courriers.index', compact('courriers', 'destinataires'));
     }
 
     public function create()
     {
-        $destinataires = Destinataire::orderBy('nom')->get();
+        $destinataires = User::orderBy('name')->get();
         return view('Courriers.create', compact('destinataires'));
     }
 
@@ -30,11 +30,11 @@ class CourriersEntrantsController extends Controller
             'expediteur' => 'required|string|max:255',
             'type' => 'required|string|in:urgent,confidentiel,normal',
             'objet' => 'required|string|max:255',
-            'destinataire_id' => 'required|exists:destinataires,id',
+            'user_id' => 'required|exists:users,id', // Modifié de destinataire_id à user_id
             'nom_dechargeur' => 'required|string|max:255',
             'additional_destinataires' => 'nullable|array',
-            'additional_destinataires.*' => 'exists:destinataires,id',
-            'document' => 'nullable|file|max:10240', // 10MB max
+            'additional_destinataires.*' => 'exists:users,id', // Modifié pour pointer vers users
+            'document' => 'nullable|file|max:10240',
         ]);
 
         // Gérer le téléchargement du document
@@ -63,7 +63,7 @@ class CourriersEntrantsController extends Controller
 
     public function edit(CourriersEntrants $courrier)
     {
-        $destinataires = Destinataire::orderBy('nom')->get();
+        $destinataires = User::orderBy('name')->get();
         $courrier->load('destinataireInterne', 'destinataires');
         return view('Courriers.edit', compact('courrier', 'destinataires'));
     }
@@ -74,12 +74,12 @@ class CourriersEntrantsController extends Controller
             'expediteur' => 'required|string|max:255',
             'type' => 'required|string|in:urgent,confidentiel,normal',
             'objet' => 'required|string|max:255',
-            'destinataire_id' => 'required|exists:destinataires,id',
+            'user_id' => 'required|exists:users,id', // Modifié
             'nom_dechargeur' => 'required|string|max:255',
             'statut' => 'required|string|in:en_cours,traite,archive',
             'additional_destinataires' => 'nullable|array',
-            'additional_destinataires.*' => 'exists:destinataires,id',
-            'document' => 'nullable|file|max:10240', // 10MB max
+            'additional_destinataires.*' => 'exists:users,id', // Modifié
+            'document' => 'nullable|file|max:10240',
         ]);
 
         // Gérer le téléchargement du document

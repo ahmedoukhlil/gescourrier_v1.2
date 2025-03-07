@@ -3,7 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\CourriersEntrants;
-use App\Models\Destinataire;
+use App\Models\User;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Storage;
@@ -52,7 +52,7 @@ class CourriersList extends Component
                   ->orWhere('numero_ordre', 'like', '%' . $this->search . '%')
                   ->orWhere('objet', 'like', '%' . $this->search . '%')
                   ->orWhereHas('destinataireInterne', function($q2) {
-                      $q2->where('nom', 'like', '%' . $this->search . '%');
+                      $q2->where('name', 'like', '%' . $this->search . '%');
                   });
             });
         }
@@ -77,7 +77,7 @@ class CourriersList extends Component
         
         return view('livewire.courriers-list', [
             'courriers' => $courriers,
-            'destinataires' => Destinataire::orderBy('nom')->get()
+            'destinataires' => User::orderBy('name')->get() // Modifié
         ]);
     }
     

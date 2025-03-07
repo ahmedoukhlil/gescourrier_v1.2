@@ -16,7 +16,7 @@ class CourriersEntrants extends Model
         'expediteur', 
         'type', 
         'objet', 
-        'destinataire_id', 
+        'user_id', // Remplacer destinataire_id par user_id
         'statut', 
         'document_path',
         'nom_dechargeur'
@@ -47,19 +47,19 @@ class CourriersEntrants extends Model
     // Relation avec le destinataire principal
     public function destinataireInterne()
     {
-        return $this->belongsTo(Destinataire::class, 'destinataire_id');
+        return $this->belongsTo(User::class, 'user_id');
     }
     
     // Relation many-to-many avec les destinataires en copie
     public function destinataires()
     {
-        return $this->belongsToMany(Destinataire::class, 'courrier_destinataire', 'courrier_id', 'destinataire_id')
+        return $this->belongsToMany(User::class, 'courrier_user', 'courrier_id', 'user_id')
                     ->withTimestamps();
     }
     
     // Relation avec les courriers sortants
     public function courriersSortants()
     {
-        return $this->hasMany(CourriersSortants::class, 'courrier_entrant_id');
+        return $this->hasMany(CourrierSortant::class, 'courrier_entrant_id');
     }
 }
