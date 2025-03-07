@@ -8,6 +8,7 @@ use App\Http\Controllers\DestinataireController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -73,11 +74,12 @@ Route::middleware(['auth'])->group(function () {
     });
     
     // Routes pour les administrateurs uniquement
-    Route::middleware(['role:admin'])->group(function () {
-        // Gestion des utilisateurs
-        Route::resource('users', UserController::class);
-        
-        // Gestion des rôles
-        Route::resource('roles', RoleController::class);
-    });
+    // Routes pour les administrateurs uniquement
+Route::middleware([\App\Http\Middleware\CheckRole::class.':admin'])->group(function () {
+    // Gestion des utilisateurs
+    Route::resource('users', UserController::class);
+    
+    // Gestion des rôles
+    Route::resource('roles', RoleController::class);
+});
 });
