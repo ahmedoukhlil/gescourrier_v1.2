@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Models\CourrierSortant;
 use App\Models\CourriersEntrants;
+use App\Models\CourrierAnnotation;
+use App\Models\CourrierShare;
 use App\Policies\CourrierEntrantPolicy;
 use App\Policies\CourrierSortantPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -47,9 +49,29 @@ class AuthServiceProvider extends ServiceProvider
             return $user->canManageCourriers();
         });
         
+        // Annoter des courriers (Admin, Gestionnaire uniquement)
+        Gate::define('annotate-courriers', function ($user) {
+            return $user->canAnnotateCourriers();
+        });
+        
         // Visualisation des courriers (Tous les rôles authentifiés)
         Gate::define('view-courriers', function ($user) {
             return $user->canViewCourriers();
+        });
+        
+        // Visualisation des courriers pour les lecteurs
+        Gate::define('view-courrier', function ($user, $courrier) {
+            // Les gestionnaires, admin et agents peuvent toujours voir les courriers
+            if ($user->canManageCourriers()) {
+                return true;
+            }
+            
+            // Les lecteurs peuvent voir un courrier uniquement s'il est partagé avec eux
+            if ($user->isLecteur()) {
+                return $courrier->isSharedWith($user);
+            }
+            
+            return false;
         });
         
         // Supprimer des courriers (Admin, Gestionnaire uniquement)

@@ -16,7 +16,7 @@ class CourriersEntrants extends Model
         'expediteur', 
         'type', 
         'objet', 
-        'user_id', // Remplacer destinataire_id par user_id
+        'user_id',
         'statut', 
         'document_path',
         'nom_dechargeur'
@@ -51,16 +51,48 @@ class CourriersEntrants extends Model
     }
     
     // Relation many-to-many avec les destinataires en copie
-
-public function destinataires()
-{
-    return $this->belongsToMany(User::class, 'courrier_user', 'courrier_entrant_id', 'user_id')
-                ->withTimestamps();
-}
+    public function destinataires()
+    {
+        return $this->belongsToMany(User::class, 'courrier_user', 'courrier_entrant_id', 'user_id')
+                    ->withTimestamps();
+    }
     
     // Relation avec les courriers sortants
     public function courriersSortants()
     {
         return $this->hasMany(CourrierSortant::class, 'courrier_entrant_id');
+    }
+    
+    /**
+     * Les annotations pour ce courrier
+     */
+    public function annotations()
+    {
+        return $this->hasMany(CourrierAnnotation::class, 'courrier_entrant_id');
+    }
+    
+    /**
+     * Les partages de ce courrier
+     */
+    public function shares()
+    {
+        return $this->hasMany(CourrierShare::class, 'courrier_entrant_id');
+    }
+    
+    /**
+     * Les utilisateurs avec qui ce courrier est partagé
+     */
+    public function sharedWith()
+    {
+        return $this->belongsToMany(User::class, 'courrier_shares', 'courrier_entrant_id', 'shared_with')
+                    ->withTimestamps();
+    }
+    
+    /**
+     * Vérifie si ce courrier est partagé avec un utilisateur spécifique
+     */
+    public function isSharedWith(User $user)
+    {
+        return $this->shares()->where('shared_with', $user->id)->exists();
     }
 }

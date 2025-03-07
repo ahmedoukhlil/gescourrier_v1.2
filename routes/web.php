@@ -7,7 +7,8 @@ use App\Http\Controllers\CourrierSortantController;
 use App\Http\Controllers\DestinataireController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
-
+use App\Http\Controllers\CourrierAnnotationController;
+use App\Http\Controllers\CourrierShareController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,11 @@ Route::middleware(['auth'])->group(function () {
         abort(404);
     })->where('path', '.*')->name('document.view');
     
+    // Routes pour les courriers partagés (accessibles par tous les utilisateurs)
+    Route::get('/courriers/shared', [CourrierShareController::class, 'index'])->name('courriers.shared');
+    Route::get('/courriers/shared/{share}', [CourrierShareController::class, 'show'])->name('courriers.shared.show');
+    Route::post('/courriers/{courrier}/mark-as-read', [CourrierShareController::class, 'markAsRead'])->name('courriers.mark-as-read');
+    
     // Routes pour les utilisateurs avec des permissions de lecture sur les courriers
     Route::middleware(['can:view-courriers'])->group(function () {
         // Routes pour les courriers entrants (lecture seule)
@@ -61,9 +67,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/courriers-sortants/{courrierSortant}/edit', [CourrierSortantController::class, 'edit'])->name('courriers-sortants.edit');
         Route::put('/courriers-sortants/{courrierSortant}', [CourrierSortantController::class, 'update'])->name('courriers-sortants.update');
         Route::patch('/courriers-sortants/{courrierSortant}/decharge', [CourrierSortantController::class, 'updateDecharge'])->name('courriers-sortants.updateDecharge');
-        
-        // Routes pour les destinataires
-        // Route::resource('destinataires', DestinataireController::class)->except(['destroy']);
+    });
+    
+    // Routes pour les annotations et partages (gestionnaires uniquement)
+    Route::middleware(['role:admin,gestionnaire'])->group(function () {
+        Route::get('/courriers/{courrier}/annotate', [CourrierAnnotationController::class, 'create'])->name('courriers.annotations.create');
+        Route::post('/courriers/{courrier}/annotations', [CourrierAnnotationController::class, 'store'])->name('courriers.annotations.store');
+        Route::delete('/annotations/{annotation}', [CourrierAnnotationController::class, 'destroy'])->name('courriers.annotations.destroy');
+        Route::delete('/shares/{share}', [CourrierShareController::class, 'destroy'])->name('courriers.shares.destroy');
     });
     
     // Routes pour les utilisateurs avec des permissions de suppression
@@ -74,12 +85,26 @@ Route::middleware(['auth'])->group(function () {
     });
     
     // Routes pour les administrateurs uniquement
-    // Routes pour les administrateurs uniquement
-Route::middleware([\App\Http\Middleware\CheckRole::class.':admin'])->group(function () {
-    // Gestion des utilisateurs
-    Route::resource('users', UserController::class);
-    
-    // Gestion des rôles
-    Route::resource('roles', RoleController::class);
+    Route::middleware([\App\Http\Middleware\CheckRole::class.':admin'])->group(function () {
+        // Gestion des utilisateurs
+        Route::resource('users', UserController::class);
+        
+        // Gestion des rôles
+        Route::resource('roles', RoleController::class);
+    });
 });
-});
+// Route pour afficher les documents (tous les utilisateurs authentifiés)
+Route::get('/document/view/{path}', function ($path) {
+    if (Storage::disk('public')->exists($path)) {
+        return response()->file(storage_path('app/public/' . $path));
+    }
+    abort(404);
+})->where('path', '.*')->name('document.view');
+
+// Route pour télécharger les documents (tous les utilisateurs authentifiés)
+Route::get('/document/download/{path}', function ($path) {
+    if (Storage::disk('public')->exists($path)) {
+        return response()->download(storage_path('app/public/' . $path));
+    }
+    abort(404);
+})->where('path', '.*')->name('document.download');

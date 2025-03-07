@@ -53,6 +53,33 @@
         Accéder
     </a>
 </div>
+<!-- Card pour les courriers partagés -->
+<div class="bg-indigo-50 p-6 rounded-lg shadow-md">
+    <div class="flex items-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-indigo-500 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+        </svg>
+        <h4 class="text-lg font-semibold">Courriers Partagés</h4>
+        @php
+            $unreadCount = Auth::user()->sharedCourriers()->unread()->count();
+        @endphp
+        @if($unreadCount > 0)
+            <span class="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                {{ $unreadCount }}
+            </span>
+        @endif
+    </div>
+    
+    @if($unreadCount > 0)
+        <p class="text-gray-600 mb-4">Vous avez <strong>{{ $unreadCount }}</strong> courrier(s) partagé(s) non lu(s).</p>
+    @else
+        <p class="text-gray-600 mb-4">Consultez les courriers qui ont été partagés avec vous par les gestionnaires.</p>
+    @endif
+    
+    <a href="{{ route('courriers.shared') }}" class="inline-block bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded">
+        Voir les courriers partagés
+    </a>
+</div>
 
                         @can('manage-users')
                         <!-- Card Administration -->

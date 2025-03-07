@@ -6,11 +6,20 @@ use App\Models\CourriersEntrants;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
 
 class CourriersEntrantsController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
+        
+        // Si c'est un lecteur, montrer uniquement les courriers partagés avec lui
+        if ($user->isLecteur()) {
+            return redirect()->route('courriers.shared');
+        }
+        
         $courriers = CourriersEntrants::with(['destinataireInterne', 'destinataires'])
                                 ->latest()
                                 ->paginate(10);
@@ -57,7 +66,13 @@ class CourriersEntrantsController extends Controller
 
     public function show(CourriersEntrants $courrier)
     {
-        $courrier->load('destinataireInterne', 'destinataires', 'courriersSortants');
+        // Vérifier si l'utilisateur a le droit de voir ce courrier
+        if (Gate::denies('view-courrier', $courrier)) {
+            abort(403, 'Vous n\'avez pas l\'autorisation de voir ce courrier.');
+        }
+        
+        $courrier->load(['destinataireInterne', 'destinataires', 'courriersSortants', 'annotations', 'annotations.annotator', 'annotations.shares', 'annotations.shares.recipient']);
+        
         return view('Courriers.show', compact('courrier'));
     }
 
@@ -112,6 +127,10 @@ class CourriersEntrantsController extends Controller
         if ($courrier->document_path) {
             Storage::disk('public')->delete($courrier->document_path);
         }
+        
+        // Supprimer les annotations et partages associés
+        $courrier->annotations()->delete();
+        $courrier->shares()->delete();
         
         $courrier->delete();
         return redirect()->route('courriers.index')

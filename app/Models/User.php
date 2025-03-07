@@ -54,12 +54,11 @@ class User extends Authenticatable
     /**
      * Relation many-to-many avec les courriers (pour les destinataires en copie)
      */
-   // Dans App\Models\User
-public function courriers()
-{
-    return $this->belongsToMany(CourriersEntrants::class, 'courrier_user', 'user_id', 'courrier_entrant_id')
+    public function courriers()
+    {
+        return $this->belongsToMany(CourriersEntrants::class, 'courrier_user', 'user_id', 'courrier_entrant_id')
                 ->withTimestamps();
-}
+    }
 
     /**
      * Relation one-to-many avec les courriers (pour le destinataire principal)
@@ -67,6 +66,30 @@ public function courriers()
     public function courriersDestines()
     {
         return $this->hasMany(CourriersEntrants::class, 'user_id');
+    }
+    
+    /**
+     * Les annotations faites par l'utilisateur
+     */
+    public function annotations()
+    {
+        return $this->hasMany(CourrierAnnotation::class, 'annotated_by');
+    }
+    
+    /**
+     * Les courriers partagés par l'utilisateur
+     */
+    public function courrierShares()
+    {
+        return $this->hasMany(CourrierShare::class, 'shared_by');
+    }
+    
+    /**
+     * Les courriers partagés avec l'utilisateur
+     */
+    public function sharedCourriers()
+    {
+        return $this->hasMany(CourrierShare::class, 'shared_with');
     }
 
     /**
@@ -95,6 +118,36 @@ public function courriers()
     {
         return $this->hasRole('admin');
     }
+    
+    /**
+     * Vérifie si l'utilisateur est gestionnaire
+     *
+     * @return bool
+     */
+    public function isGestionnaire()
+    {
+        return $this->hasRole('gestionnaire');
+    }
+    
+    /**
+     * Vérifie si l'utilisateur est agent
+     *
+     * @return bool
+     */
+    public function isAgent()
+    {
+        return $this->hasRole('agent');
+    }
+    
+    /**
+     * Vérifie si l'utilisateur est lecteur
+     *
+     * @return bool
+     */
+    public function isLecteur()
+    {
+        return $this->hasRole('lecteur');
+    }
 
     /**
      * Vérifie si l'utilisateur peut gérer les courriers
@@ -104,6 +157,16 @@ public function courriers()
     public function canManageCourriers()
     {
         return $this->hasRole(['admin', 'gestionnaire', 'agent']);
+    }
+    
+    /**
+     * Vérifie si l'utilisateur peut annoter les courriers
+     *
+     * @return bool
+     */
+    public function canAnnotateCourriers()
+    {
+        return $this->hasRole(['admin', 'gestionnaire']);
     }
 
     /**
