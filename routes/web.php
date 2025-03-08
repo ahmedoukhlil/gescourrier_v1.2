@@ -9,6 +9,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CourrierAnnotationController;
 use App\Http\Controllers\CourrierShareController;
+use App\Http\Controllers\LecteurResponseDraftController;
 
 /*
 |--------------------------------------------------------------------------
@@ -108,3 +109,34 @@ Route::get('/document/download/{path}', function ($path) {
     }
     abort(404);
 })->where('path', '.*')->name('document.download');
+// Ajouter à routes/web.php dans le groupe middleware 'auth'
+
+// Routes pour les projets de réponse des lecteurs
+Route::middleware(['can:view-courriers'])->group(function () {
+    // Créer un projet de réponse
+    Route::get('/courriers/{courrier}/response-draft/create', [LecteurResponseDraftController::class, 'create'])
+        ->name('lecteur-response-drafts.create');
+    
+    // Stocker un projet de réponse
+    Route::post('/courriers/{courrier}/response-draft', [LecteurResponseDraftController::class, 'store'])
+        ->name('lecteur-response-drafts.store');
+    
+    // Voir son propre projet de réponse
+    Route::get('/response-draft/{draft}', [LecteurResponseDraftController::class, 'show'])
+        ->name('lecteur-response-drafts.show');
+    
+    // Supprimer son propre projet de réponse
+    Route::delete('/response-draft/{draft}', [LecteurResponseDraftController::class, 'destroy'])
+        ->name('lecteur-response-drafts.destroy');
+});
+
+// Routes pour la gestion des projets de réponse (admin, gestionnaire)
+Route::middleware(['can:annotate-courriers'])->group(function () {
+    // Voir tous les projets de réponse pour un courrier
+    Route::get('/courriers/{courrier}/response-drafts', [LecteurResponseDraftController::class, 'index'])
+        ->name('lecteur-response-drafts.index');
+    
+    // Examiner un projet de réponse
+    Route::post('/response-draft/{draft}/review', [LecteurResponseDraftController::class, 'review'])
+        ->name('lecteur-response-drafts.review');
+});

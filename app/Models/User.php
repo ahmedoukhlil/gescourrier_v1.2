@@ -91,6 +91,22 @@ class User extends Authenticatable
     {
         return $this->hasMany(CourrierShare::class, 'shared_with');
     }
+    
+    /**
+     * Les projets de réponse créés par l'utilisateur
+     */
+    public function responseDrafts()
+    {
+        return $this->hasMany(LecteurResponseDraft::class);
+    }
+
+    /**
+     * Les projets de réponse examinés par l'utilisateur
+     */
+    public function reviewedDrafts()
+    {
+        return $this->hasMany(LecteurResponseDraft::class, 'reviewed_by');
+    }
 
     /**
      * Vérifie si l'utilisateur a un rôle spécifique

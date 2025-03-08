@@ -95,4 +95,13 @@ class CourriersEntrants extends Model
     {
         return $this->shares()->where('shared_with', $user->id)->exists();
     }
+    // Ajouter cette méthode au modèle CourriersEntrants (app/Models/CourriersEntrants.php)
+
+/**
+ * Les projets de réponse associés à ce courrier
+ */
+public function responseDrafts()
+{
+    return $this->hasMany(LecteurResponseDraft::class, 'courrier_entrant_id');
+}
 }
