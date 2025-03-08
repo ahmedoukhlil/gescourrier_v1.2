@@ -17,7 +17,9 @@ class LecteurResponseDraft extends Model
         'is_reviewed',
         'feedback',
         'reviewed_by',
-        'reviewed_at'
+        'reviewed_at',
+        'status',
+        'needs_revision'
     ];
 
     protected $casts = [
@@ -48,4 +50,11 @@ class LecteurResponseDraft extends Model
     {
         return $this->belongsTo(User::class, 'reviewed_by');
     }
+    /**
+ * Les échanges associés à ce projet de réponse
+ */
+public function exchanges()
+{
+    return $this->hasMany(ResponseDraftExchange::class, 'draft_id');
+}
 }

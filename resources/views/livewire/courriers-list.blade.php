@@ -101,23 +101,31 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            @switch($courrier->statut)
-                                @case('en_cours')
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                        En cours
-                                    </span>
-                                    @break
-                                @case('traite')
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        Traité
-                                    </span>
-                                    @break
-                                @default
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                        Archivé
-                                    </span>
-                            @endswitch
-                        </td>
+    @php
+        $hasAnnotations = $courrier->annotations->count() > 0;
+        $hasResponseDrafts = $courrier->responseDrafts->count() > 0;
+        $hasPendingDrafts = $courrier->responseDrafts->where('is_reviewed', false)->count() > 0;
+        $allDraftsReviewed = $hasResponseDrafts && !$hasPendingDrafts;
+    @endphp
+
+    @if($hasPendingDrafts)
+        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">
+            Projet en attente
+        </span>
+    @elseif($allDraftsReviewed)
+        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+            Projets validés
+        </span>
+    @elseif($hasAnnotations)
+        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+            Annoté
+        </span>
+    @else
+        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+            Validé
+        </span>
+    @endif
+</td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                             {{ $courrier->created_at->format('d/m/Y') }}
                         </td>

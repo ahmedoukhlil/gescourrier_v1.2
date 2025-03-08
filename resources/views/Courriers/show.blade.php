@@ -298,27 +298,184 @@
     @endif
 
     <!-- Annotations -->
-    <!-- Annotations -->
-@if($courrier->annotations->count() > 0 && (Auth::user()->canAnnotateCourriers() || $courrier->isSharedWith(Auth::user())))
-    @include('Courriers.includes.annotations', ['courrier' => $courrier])
-@elseif(Auth::user()->canAnnotateCourriers())
-    <div class="bg-white shadow-md rounded-lg p-6 mb-6">
-        <div class="text-center py-4">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-            <h3 class="text-lg font-medium text-gray-900">Aucune annotation</h3>
-            <p class="mt-1 text-sm text-gray-500">
-                Ce courrier n'a pas encore été annoté.
-            </p>
-            <div class="mt-4">
-                <a href="{{ route('courriers.annotations.create', $courrier) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo transition ease-in-out duration-150">
-                    Ajouter une annotation
-                </a>
+    @if($courrier->annotations->count() > 0 && (Auth::user()->canAnnotateCourriers() || $courrier->isSharedWith(Auth::user())))
+        @include('Courriers.includes.annotations', ['courrier' => $courrier])
+    @elseif(Auth::user()->canAnnotateCourriers())
+        <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+            <div class="text-center py-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900">Aucune annotation</h3>
+                <p class="mt-1 text-sm text-gray-500">
+                    Ce courrier n'a pas encore été annoté.
+                </p>
+                <div class="mt-4">
+                    <a href="{{ route('courriers.annotations.create', $courrier) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo transition ease-in-out duration-150">
+                        Ajouter une annotation
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-@endif
+    @endif
+
+    <!-- Projets de réponse des lecteurs -->
+    @if(Auth::user()->canAnnotateCourriers())
+        @php
+            $responseDrafts = $courrier->responseDrafts()->with(['user', 'reviewer', 'exchanges'])->get();
+            $pendingDrafts = $responseDrafts->where('is_reviewed', false);
+            $reviewedDrafts = $responseDrafts->where('is_reviewed', true);
+        @endphp
+
+        <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">Projets de réponse des lecteurs</h2>
+                @if($responseDrafts->count() > 0)
+                    <a href="{{ route('lecteur-response-drafts.index', $courrier) }}" class="text-indigo-600 hover:text-indigo-900">
+                        Voir tous les projets ({{ $responseDrafts->count() }})
+                    </a>
+                @endif
+            </div>
+            
+            @if($responseDrafts->count() > 0)
+                @if($pendingDrafts->count() > 0)
+                    <div class="mb-4">
+                        <h3 class="text-sm font-medium text-yellow-800 bg-yellow-100 px-3 py-2 rounded-t-md">En attente d'examen ({{ $pendingDrafts->count() }})</h3>
+                        <div class="border border-yellow-200 rounded-b-md p-4 space-y-3">
+                            @foreach($pendingDrafts as $draft)
+                                <div class="flex justify-between items-center pb-3 {{ !$loop->last ? 'border-b border-gray-200' : '' }}">
+                                    <div>
+                                        <p class="font-medium">{{ $draft->user->name }}</p>
+                                        <p class="text-sm text-gray-500">
+                                            @if($draft->exchanges && $draft->exchanges->count() > 0)
+                                                {{ $draft->exchanges->count() }} échange(s) - Dernier le {{ $draft->exchanges->sortByDesc('created_at')->first()->created_at->format('d/m/Y à H:i') }}
+                                            @else
+                                                Soumis le {{ $draft->created_at->format('d/m/Y à H:i') }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <a href="{{ route('document.view', $draft->file_path) }}" target="_blank" class="px-3 py-1 bg-blue-100 text-blue-700 rounded-md text-sm hover:bg-blue-200">
+                                            Voir le document
+                                        </a>
+                                        <a href="{{ route('lecteur-response-drafts.show', $draft) }}" class="px-3 py-1 bg-green-100 text-green-700 rounded-md text-sm hover:bg-green-200">
+                                            Examiner
+                                        </a>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+                
+                @if($reviewedDrafts->count() > 0)
+                    <div>
+                        <h3 class="text-sm font-medium text-green-800 bg-green-100 px-3 py-2 rounded-t-md">Déjà examinés ({{ $reviewedDrafts->count() }})</h3>
+                        <div class="border border-green-200 rounded-b-md p-4 space-y-3">
+                            @foreach($reviewedDrafts as $draft)
+                                <div class="flex justify-between items-center pb-3 {{ !$loop->last ? 'border-b border-gray-200' : '' }}">
+                                    <div>
+                                        <p class="font-medium">{{ $draft->user->name }}</p>
+                                        <p class="text-sm text-gray-500">
+                                            @if($draft->exchanges && $draft->exchanges->count() > 0)
+                                                {{ $draft->exchanges->count() }} échange(s) - Approuvé le {{ $draft->reviewed_at->format('d/m/Y') }}
+                                            @else
+                                                Examiné par {{ optional($draft->reviewer)->name }} le {{ $draft->reviewed_at->format('d/m/Y') }}
+                                            @endif
+                                        </p>
+                                    </div>
+                                    <a href="{{ route('lecteur-response-drafts.show', $draft) }}" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-md text-sm hover:bg-gray-200">
+                                        Détails
+                                    </a>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            @else
+                <div class="bg-gray-50 p-4 rounded-md text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a22 0 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun projet de réponse</h3>
+                    <p class="mt-1 text-sm text-gray-500">
+                        Aucun lecteur n'a encore soumis de projet de réponse pour ce courrier.
+                    </p>
+                </div>
+            @endif
+        </div>
+    @endif
+
+    <!-- Pour les lecteurs qui consultent un courrier (mais pas via le partage) -->
+    @if(Auth::user()->isLecteur() && !Auth::user()->canAnnotateCourriers())
+        @php
+            $existingDraft = App\Models\LecteurResponseDraft::where('courrier_entrant_id', $courrier->id)
+                                ->where('user_id', Auth::id())
+                                ->first();
+        @endphp
+        
+        <div class="bg-white shadow-md rounded-lg p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">Projet de réponse</h2>
+            
+            @if($existingDraft)
+                <div class="bg-blue-50 p-4 border-l-4 border-blue-500 mb-4">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-blue-700">
+                                @if($existingDraft->exchanges && $existingDraft->exchanges->count() > 0)
+                                    Vous avez {{ $existingDraft->exchanges->count() }} échange(s) sur ce projet de réponse.
+                                @else
+                                    Vous avez soumis un projet de réponse pour ce courrier le {{ $existingDraft->created_at->format('d/m/Y à H:i') }}.
+                                @endif
+                            </p>
+                            <div class="mt-2">
+                                <a href="{{ route('lecteur-response-drafts.show', $existingDraft) }}" class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-5 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:border-blue-300 focus:shadow-outline-blue active:bg-blue-300 transition ease-in-out duration-150">
+                                    Voir mon projet
+                                </a>
+                            </div>
+                            
+                            @if($existingDraft->is_reviewed)
+                                <p class="mt-2 text-sm text-blue-700">
+                                    <span class="font-medium">Statut :</span> Approuvé par {{ $existingDraft->reviewer->name }}
+                                </p>
+                            @elseif($existingDraft->needs_revision)
+                                <p class="mt-2 text-sm text-yellow-700">
+                                    <span class="font-medium">Statut :</span> Révision demandée par {{ $existingDraft->reviewer->name }}
+                                    <a href="{{ route('lecteur-response-drafts.show', $existingDraft) }}" class="ml-2 underline">Soumettre une révision</a>
+                                </p>
+                            @elseif($existingDraft->status === 'revised')
+                                <p class="mt-2 text-sm text-indigo-700">
+                                    <span class="font-medium">Statut :</span> En attente d'examen après révision
+                                </p>
+                            @else
+                                <p class="mt-2 text-sm text-blue-700">
+                                    <span class="font-medium">Statut :</span> En attente d'examen
+                                </p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @else
+                <p class="mb-4">
+                    En tant que lecteur, vous pouvez soumettre un projet de réponse pour ce courrier. Ce projet sera examiné par un gestionnaire qui pourra vous fournir un feedback.
+                </p>
+                
+                <div class="flex justify-center">
+                    <a href="{{ route('lecteur-response-drafts.create', $courrier) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo transition ease-in-out duration-150">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Soumettre un projet de réponse
+                    </a>
+                </div>
+            @endif
+        </div>
+    @endif
 
     <!-- Suppression du courrier (pour les administrateurs et gestionnaires) -->
     @if(Auth::user()->hasRole(['admin', 'gestionnaire']))

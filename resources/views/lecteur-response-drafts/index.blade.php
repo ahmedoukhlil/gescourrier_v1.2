@@ -79,20 +79,32 @@
                                 <div class="text-sm text-gray-900">{{ $draft->created_at->format('d/m/Y') }}</div>
                                 <div class="text-sm text-gray-500">{{ $draft->created_at->format('H:i') }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @if($draft->is_reviewed)
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        Examiné
-                                    </span>
-                                    <div class="text-xs text-gray-500 mt-1">
-                                        Par {{ $draft->reviewer->name }}
-                                    </div>
-                                @else
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                        En attente
-                                    </span>
-                                @endif
-                            </td>
+                            <!-- Dans resources/views/lecteur-response-drafts/index.blade.php -->
+
+<td class="px-6 py-4 whitespace-nowrap">
+    @if($draft->is_reviewed)
+        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+            Approuvé
+        </span>
+    @elseif($draft->status === 'revised')
+        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+            Révisé
+        </span>
+    @elseif($draft->needs_revision)
+        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+            Révision demandée
+        </span>
+    @else
+        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+            En attente
+        </span>
+    @endif
+    <div class="text-xs text-gray-500 mt-1">
+        @if($draft->reviewed_by)
+            Dernière action par {{ $draft->reviewer->name }}
+        @endif
+    </div>
+</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                 <a href="{{ route('document.view', $draft->file_path) }}" target="_blank" class="text-indigo-600 hover:text-indigo-900 flex items-center">
                                     <svg class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -106,48 +106,83 @@ class LecteurResponseDraftController extends Controller
     }
     
     /**
-     * Examiner un projet de réponse (pour les gestionnaires/admins)
-     */
-    public function review(Request $request, LecteurResponseDraft $draft)
-    {
-        // Vérifier les permissions
-        if (!Auth::user()->canAnnotateCourriers()) {
-            abort(403, 'Vous n\'avez pas l\'autorisation d\'examiner les projets de réponse.');
-        }
-        
-        $validated = $request->validate([
-            'feedback' => 'required|string|max:1000',
-        ]);
-        
-        $draft->update([
-            'is_reviewed' => true,
-            'feedback' => $validated['feedback'],
-            'reviewed_by' => Auth::id(),
-            'reviewed_at' => now(),
-        ]);
-        
-        return redirect()->route('lecteur-response-drafts.index', $draft->courrier_entrant_id)
-            ->with('success', 'Le projet de réponse a été examiné avec succès.');
+ * Examiner un projet de réponse (pour les gestionnaires/admins)
+ */
+public function review(Request $request, LecteurResponseDraft $draft)
+{
+    // Vérifier les permissions
+    if (!Auth::user()->canAnnotateCourriers()) {
+        abort(403, 'Vous n\'avez pas l\'autorisation d\'examiner les projets de réponse.');
     }
     
-    /**
-     * Supprimer un projet de réponse
-     */
-    public function destroy(LecteurResponseDraft $draft)
-    {
-        // Vérifier les permissions
-        if (Auth::id() !== $draft->user_id && !Auth::user()->isAdmin()) {
-            abort(403, 'Vous n\'avez pas l\'autorisation de supprimer ce projet de réponse.');
-        }
-        
-        // Supprimer le fichier
-        if ($draft->file_path) {
-            Storage::disk('public')->delete($draft->file_path);
-        }
-        
-        $draft->delete();
-        
-        return redirect()->back()
-            ->with('success', 'Le projet de réponse a été supprimé avec succès.');
+    $validated = $request->validate([
+        'feedback' => 'required|string|max:1000',
+        'status' => 'required|in:pending,approved', // pending = en attente de révision, approved = approuvé 
+    ]);
+    
+    // Créer un nouvel échange
+    $exchange = new ResponseDraftExchange([
+        'draft_id' => $draft->id,
+        'user_id' => Auth::id(),
+        'comment' => $validated['feedback'],
+        'type' => 'feedback'
+    ]);
+    
+    $exchange->save();
+    
+    // Mettre à jour le statut du projet
+    $draft->update([
+        'status' => $validated['status'],
+        'is_reviewed' => $validated['status'] === 'approved',
+        'feedback' => $validated['feedback'],
+        'reviewed_by' => Auth::id(),
+        'reviewed_at' => now(),
+        'needs_revision' => $validated['status'] === 'pending'
+    ]);
+    
+    return redirect()->route('lecteur-response-drafts.index', $draft->courrier_entrant_id)
+        ->with('success', 'Le projet de réponse a été examiné avec succès.');
+}
+
+/**
+ * Ajouter une révision à un projet de réponse (pour les lecteurs)
+ */
+public function addRevision(Request $request, LecteurResponseDraft $draft)
+{
+    // Vérifier les permissions
+    if (Auth::id() !== $draft->user_id) {
+        abort(403, 'Vous n\'avez pas l\'autorisation de réviser ce projet de réponse.');
     }
+    
+    $validated = $request->validate([
+        'comment' => 'required|string|max:1000',
+        'response_file' => 'required|file|max:10240', // 10MB max
+    ]);
+    
+    // Enregistrer le nouveau fichier
+    $filePath = $request->file('response_file')->store('response_drafts', 'public');
+    
+    // Créer un nouvel échange
+    $exchange = new ResponseDraftExchange([
+        'draft_id' => $draft->id,
+        'user_id' => Auth::id(),
+        'comment' => $validated['comment'],
+        'file_path' => $filePath,
+        'type' => 'revision'
+    ]);
+    
+    $exchange->save();
+    
+    // Mettre à jour le projet avec le nouveau fichier et statut
+    $draft->update([
+        'file_path' => $filePath, // Mettre à jour le fichier principal
+        'status' => 'revised', // Révisé, en attente de nouvel examen
+        'is_reviewed' => false, // Nécessite un nouvel examen
+        'needs_revision' => false // La révision a été soumise
+    ]);
+    
+    // Rediriger vers la page du projet
+    return redirect()->route('lecteur-response-drafts.show', $draft)
+        ->with('success', 'Votre révision a été soumise avec succès.');
+}
 }

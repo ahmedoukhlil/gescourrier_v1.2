@@ -74,10 +74,10 @@ class CourriersList extends Component
         }
         
         $courriers = $query->latest()->paginate(10);
-        
+    
         return view('livewire.courriers-list', [
             'courriers' => $courriers,
-            'destinataires' => User::orderBy('name')->get() // Modifié
+            'destinataires' => User::orderBy('name')->get()
         ]);
     }
     
@@ -108,4 +108,6 @@ class CourriersList extends Component
     {
         $this->reset(['search', 'status', 'dateFrom', 'dateTo', 'type']);
     }
+    
+  
 }

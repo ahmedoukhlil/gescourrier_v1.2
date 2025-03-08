@@ -140,3 +140,10 @@ Route::middleware(['can:annotate-courriers'])->group(function () {
     Route::post('/response-draft/{draft}/review', [LecteurResponseDraftController::class, 'review'])
         ->name('lecteur-response-drafts.review');
 });
+// Pour les gestionnaires
+Route::post('/response-draft/{draft}/review', [LecteurResponseDraftController::class, 'review'])
+    ->name('lecteur-response-drafts.review');
+
+// Pour les lecteurs
+Route::post('/response-draft/{draft}/revision', [LecteurResponseDraftController::class, 'addRevision'])
+    ->name('lecteur-response-drafts.add-revision');
