@@ -118,6 +118,36 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                             @endif
+                        </div>
+                        <div>
+                            <p class="text-sm font-medium">{{ basename($draft->file_path) }}</p>
+                            <div class="flex space-x-3 mt-1">
+                                <a href="{{ route('document.view', $draft->file_path) }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-sm flex items-center">
+                                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                    Ouvrir
+                                </a>
+                                
+                                <a href="{{ route('document.download', $draft->file_path) }}" class="text-green-600 hover:text-green-800 text-sm flex items-center">
+                                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    Télécharger
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    @if($isPdf || $isImage)
+                    <div class="mt-2 border border-gray-300 rounded-lg overflow-hidden">
+                        @if($isPdf)
+                            <iframe src="{{ route('document.view', $draft->file_path) }}" class="w-full h-96" frameborder="0"></iframe>
+                        @elseif($isImage)
+                            <img src="{{ route('document.view', $draft->file_path) }}" alt="Projet de réponse" class="max-w-full max-h-96 mx-auto">
+                        @endif
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -173,33 +203,3 @@
     @endif
 </div>
 @endsection
-                        </div>
-                        <div>
-                            <p class="text-sm font-medium">{{ basename($draft->file_path) }}</p>
-                            <div class="flex space-x-3 mt-1">
-                                <a href="{{ route('document.view', $draft->file_path) }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-sm flex items-center">
-                                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                    </svg>
-                                    Ouvrir
-                                </a>
-                                
-                                <a href="{{ route('document.download', $draft->file_path) }}" class="text-green-600 hover:text-green-800 text-sm flex items-center">
-                                    <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                                    </svg>
-                                    Télécharger
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    @if($isPdf || $isImage)
-                    <div class="mt-2 border border-gray-300 rounded-lg overflow-hidden">
-                        @if($isPdf)
-                            <iframe src="{{ route('document.view', $draft->file_path) }}" class="w-full h-96" frameborder="0"></iframe>
-                        @elseif($isImage)
-                            <img src="{{ route('document.view', $draft->file_path) }}" alt="Projet de réponse" class="max-w-full max-h-96 mx-auto">
-                        @endif
-                    </div>
-                    @endif

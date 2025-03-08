@@ -24,17 +24,17 @@ class CourrierShareController extends Controller
     }
     
     public function show(CourrierShare $share)
-    {
-        // Vérifier que l'utilisateur connecté est bien le destinataire du partage
-        if ($share->shared_with !== Auth::id()) {
-            abort(403, 'Vous n\'avez pas l\'autorisation de voir ce courrier partagé.');
-        }
-        
-        // Charger les relations
-        $share->load(['courrier', 'sharer', 'annotation', 'annotation.annotator']);
-        
-        return view('courriers.shared', compact('share')); // Changé de shared-show à shared
+{
+    // Vérifier que l'utilisateur connecté est bien le destinataire du partage
+    if ($share->shared_with !== Auth::id()) {
+        abort(403, 'Vous n\'avez pas l\'autorisation de voir ce courrier partagé.');
     }
+    
+    // Charger les relations
+    $share->load(['courrier', 'sharer', 'annotation', 'annotation.annotator', 'courrier.responseDrafts', 'courrier.responseDrafts.user', 'courrier.responseDrafts.reviewer']);
+    
+    return view('courriers.shared', compact('share'));
+}
     
     /**
      * Marquer un courrier partagé comme lu
