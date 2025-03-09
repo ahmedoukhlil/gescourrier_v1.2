@@ -7,6 +7,7 @@ use App\Http\Controllers\CourrierSortantController;
 use App\Http\Controllers\DestinataireController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\CourrierAnnotationController;
 use App\Http\Controllers\CourrierShareController;
 use App\Http\Controllers\LecteurResponseDraftController;

@@ -62,6 +62,11 @@
                 @livewire('quick-search')
             </div>
 
+            <!-- Notifications -->
+<div class="ml-3 relative">
+    @livewire('notification-indicator')
+</div>
+
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ml-6">
                 <div x-data="{ open: false }" @click.away="open = false" @close.stop="open = false" class="relative">
