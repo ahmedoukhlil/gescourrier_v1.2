@@ -194,4 +194,38 @@ class User extends Authenticatable
     {
         return $this->hasRole(['admin', 'gestionnaire', 'agent', 'lecteur']);
     }
+    /**
+ * The user's notifications
+ */
+public function notifications()
+{
+    return $this->hasMany(Notification::class);
+}
+
+/**
+ * The user's notification preferences
+ */
+public function notificationPreferences()
+{
+    return $this->hasOne(NotificationPreference::class);
+}
+
+/**
+ * Get count of unread notifications
+ */
+public function getUnreadNotificationsCountAttribute()
+{
+    return $this->notifications()->where('is_read', false)->count();
+}
+
+/**
+ * Get recent notifications
+ */
+public function getRecentNotificationsAttribute()
+{
+    return $this->notifications()
+        ->orderBy('created_at', 'desc')
+        ->limit(5)
+        ->get();
+}
 }

@@ -20,42 +20,48 @@
                 </div>
 
                 <!-- Navigation Links -->
-                <!-- Navigation Links -->
-<div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-    <a href="{{ route('dashboard') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('dashboard') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out">
-        Dashboard
-    </a>
-    
-    @if(Auth::user()->canManageCourriers())
-        <a href="{{ route('courriers.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('courriers.*') && !request()->routeIs('courriers.shared*') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out">
-            Courriers Entrants
-        </a>
-        <a href="{{ route('courriers-sortants.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('courriers-sortants.*') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out">
-            Courriers Sortants
-        </a>
-    @endif
-    
-    <a href="{{ route('courriers.shared') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('courriers.shared*') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out">
-        Courriers Partagés
-        @php
-            $unreadCount = Auth::user()->sharedCourriers()->unread()->count();
-        @endphp
-        @if($unreadCount > 0)
-            <span class="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
-                {{ $unreadCount }}
-            </span>
-        @endif
-    </a>
-    
-    @can('manage-users')
-    <a href="{{ route('users.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('users.*') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out">
-        Utilisateurs
-    </a>
-    <a href="{{ route('roles.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('roles.*') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out">
-        Rôles
-    </a>
-    @endcan
-</div>
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <a href="{{ route('dashboard') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('dashboard') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out">
+                        Dashboard
+                    </a>
+                    
+                    @if(Auth::user()->canManageCourriers())
+                        <a href="{{ route('courriers.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('courriers.*') && !request()->routeIs('courriers.shared*') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out">
+                            Courriers Entrants
+                        </a>
+                        <a href="{{ route('courriers-sortants.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('courriers-sortants.*') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out">
+                            Courriers Sortants
+                        </a>
+                    @endif
+                    
+                    <a href="{{ route('courriers.shared') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('courriers.shared*') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out">
+                        Courriers Partagés
+                        @php
+                            $unreadCount = Auth::user()->sharedCourriers()->unread()->count();
+                        @endphp
+                        @if($unreadCount > 0)
+                            <span class="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                                {{ $unreadCount }}
+                            </span>
+                        @endif
+                    </a>
+                    
+                    @can('manage-users')
+                    <a href="{{ route('users.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('users.*') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out">
+                        Utilisateurs
+                    </a>
+                    <a href="{{ route('roles.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('roles.*') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out">
+                        Rôles
+                    </a>
+                    @endcan
+                </div>
+            </div>
+
+            <!-- Recherche rapide -->
+            <div class="hidden sm:flex items-center">
+                @livewire('quick-search')
+            </div>
+
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ml-6">
                 <div x-data="{ open: false }" @click.away="open = false" @close.stop="open = false" class="relative">
@@ -118,29 +124,44 @@
             <a href="{{ route('dashboard') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('dashboard') ? 'border-indigo-500 text-indigo-700 bg-indigo-50' : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300' }} text-base font-medium focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300 transition duration-150 ease-in-out">
                 Dashboard
             </a>
+            
             <a href="{{ route('courriers.index') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('courriers.*') ? 'border-indigo-500 text-indigo-700 bg-indigo-50' : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300' }} text-base font-medium focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300 transition duration-150 ease-in-out">
                 Courriers Entrants
             </a>
+            
             <a href="{{ route('courriers-sortants.index') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('courriers-sortants.*') ? 'border-indigo-500 text-indigo-700 bg-indigo-50' : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300' }} text-base font-medium focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300 transition duration-150 ease-in-out">
                 Courriers Sortants
             </a>
-            <a href="{{ route('users.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('users.*') ? 'border-indigo-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium leading-5 transition duration-150 ease-in-out">
-    Utilisateurs
-</a>
+            
+            <a href="{{ route('courriers.shared') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('courriers.shared') ? 'border-indigo-500 text-indigo-700 bg-indigo-50' : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300' }} text-base font-medium focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300 transition duration-150 ease-in-out">
+                Courriers Partagés
+                @if($unreadCount > 0)
+                    <span class="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+                        {{ $unreadCount }}
+                    </span>
+                @endif
+            </a>
+            
             @can('manage-users')
             <a href="{{ route('users.index') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('users.*') ? 'border-indigo-500 text-indigo-700 bg-indigo-50' : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300' }} text-base font-medium focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300 transition duration-150 ease-in-out">
                 Utilisateurs
             </a>
+            
             <a href="{{ route('roles.index') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('roles.*') ? 'border-indigo-500 text-indigo-700 bg-indigo-50' : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300' }} text-base font-medium focus:outline-none focus:text-gray-800 focus:bg-gray-50 focus:border-gray-300 transition duration-150 ease-in-out">
                 Rôles
             </a>
             @endcan
         </div>
 
+        <!-- Mobile Search -->
+        <div class="pt-2 pb-3 px-4">
+            @livewire('quick-search')
+        </div>
+
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200">
             <div class="flex items-center px-4">
-                <div>
+                <div class="ml-3">
                     <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
                     <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
                 </div>

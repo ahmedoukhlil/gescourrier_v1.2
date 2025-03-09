@@ -37,9 +37,21 @@
         </div>
     </div>
 
+    @if(session('success'))
+        <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
+            <p>{{ session('success') }}</p>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+            <p>{{ session('error') }}</p>
+        </div>
+    @endif
+
     <!-- Statut du projet -->
     <div class="mb-6">
-        @if($draft->is_reviewed)
+        @if($draft->is_reviewed && $draft->status === 'approved')
             <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
@@ -48,11 +60,24 @@
                         </svg>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm font-medium text-green-800">Ce projet a été examiné par {{ $draft->reviewer->name }} le {{ $draft->reviewed_at->format('d/m/Y à H:i') }}.</p>
+                        <p class="text-sm font-medium text-green-800">Ce projet a été approuvé par {{ $draft->reviewer->name }} le {{ $draft->reviewed_at->format('d/m/Y à H:i') }}.</p>
                     </div>
                 </div>
             </div>
-        @else
+        @elseif($draft->status === 'revised')
+            <div class="bg-purple-100 border-l-4 border-purple-500 text-purple-700 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-purple-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-purple-800">Ce projet a été révisé et est en attente d'examen par un gestionnaire.</p>
+                    </div>
+                </div>
+            </div>
+        @elseif($draft->needs_revision)
             <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4">
                 <div class="flex">
                     <div class="flex-shrink-0">
@@ -61,7 +86,27 @@
                         </svg>
                     </div>
                     <div class="ml-3">
-                        <p class="text-sm font-medium text-yellow-800">Ce projet est en attente d'examen par un gestionnaire.</p>
+                        <p class="text-sm font-medium text-yellow-800">Des révisions ont été demandées pour ce projet par {{ $draft->reviewer->name }}.</p>
+                        @if(Auth::id() === $draft->user_id)
+                            <div class="mt-2">
+                                <a href="{{ route('response-draft-exchanges.create', $draft) }}" class="inline-flex items-center px-3 py-1 border border-transparent text-sm leading-5 font-medium rounded-md text-yellow-700 bg-yellow-100 hover:bg-yellow-200 focus:outline-none focus:border-yellow-300 focus:shadow-outline-yellow active:bg-yellow-300 transition ease-in-out duration-150">
+                                    Soumettre une révision
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        @else
+            <div class="bg-blue-100 border-l-4 border-blue-500 text-blue-700 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm font-medium text-blue-800">Ce projet est en attente d'examen par un gestionnaire.</p>
                     </div>
                 </div>
             </div>
@@ -94,7 +139,7 @@
             </div>
 
             <div>
-                <h3 class="text-sm font-medium text-gray-500">Document soumis</h3>
+                <h3 class="text-sm font-medium text-gray-500">Document actuel</h3>
                 <div class="mt-2 p-4 bg-gray-50 rounded-lg">
                     @php
                         $extension = pathinfo($draft->file_path, PATHINFO_EXTENSION);
@@ -152,9 +197,9 @@
             </div>
         </div>
         
-        <!-- Commentaires du lecteur -->
+        <!-- Commentaire initial du lecteur -->
         <div class="mb-6">
-            <h3 class="text-sm font-medium text-gray-500 mb-2">Commentaire du lecteur</h3>
+            <h3 class="text-sm font-medium text-gray-500 mb-2">Commentaire initial du lecteur</h3>
             <div class="bg-gray-50 p-4 rounded-lg">
                 @if($draft->comment)
                     <p class="whitespace-pre-line text-gray-700">{{ $draft->comment }}</p>
@@ -164,42 +209,27 @@
             </div>
         </div>
         
-        <!-- Feedback du gestionnaire (si examiné) -->
-        @if($draft->is_reviewed)
-        <div>
-            <h3 class="text-sm font-medium text-gray-500 mb-2">Feedback du gestionnaire</h3>
-            <div class="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
-                <p class="text-sm text-gray-500 mb-2">Examiné par {{ $draft->reviewer->name }} le {{ $draft->reviewed_at->format('d/m/Y à H:i') }}</p>
-                <p class="whitespace-pre-line text-gray-700">{{ $draft->feedback }}</p>
-            </div>
+        <!-- Actions possibles -->
+        <div class="flex justify-center space-x-4">
+            @if(Auth::user()->canAnnotateCourriers() && !$draft->is_reviewed)
+                <a href="{{ route('response-draft-exchanges.create', $draft) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-800 focus:outline-none focus:border-indigo-700 focus:shadow-outline-indigo transition ease-in-out duration-150">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                    </svg>
+                    Ajouter un commentaire
+                </a>
+            @elseif(Auth::id() === $draft->user_id && $draft->needs_revision)
+                <a href="{{ route('response-draft-exchanges.create', $draft) }}" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-800 focus:outline-none focus:border-green-700 focus:shadow-outline-green transition ease-in-out duration-150">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Soumettre une révision
+                </a>
+            @endif
         </div>
-        @endif
     </div>
     
-    <!-- Formulaire d'examen pour les gestionnaires -->
-    @if(!$draft->is_reviewed && Auth::user()->canAnnotateCourriers())
-    <div class="bg-white shadow-md rounded-lg p-6">
-        <h2 class="text-lg font-semibold mb-4">Examiner ce projet de réponse</h2>
-        
-        <form action="{{ route('lecteur-response-drafts.review', $draft) }}" method="POST">
-            @csrf
-            
-            <div class="mb-4">
-                <label for="feedback" class="block text-sm font-medium text-gray-700">Feedback</label>
-                <textarea id="feedback" name="feedback" rows="4" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" required>{{ old('feedback') }}</textarea>
-                <p class="mt-1 text-sm text-gray-500">Fournissez un feedback sur le projet de réponse.</p>
-                @error('feedback')
-                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                @enderror
-            </div>
-            
-            <div class="flex justify-end">
-                <button type="submit" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 active:bg-green-800 focus:outline-none focus:border-green-700 focus:shadow-outline-green transition ease-in-out duration-150">
-                    Valider l'examen
-                </button>
-            </div>
-        </form>
-    </div>
-    @endif
+    <!-- Historique des échanges -->
+    @include('lecteur-response-drafts.exchanges.history', ['draft' => $draft, 'exchanges' => $draft->exchanges()->with('user')->orderBy('created_at', 'desc')->get()])
 </div>
 @endsection

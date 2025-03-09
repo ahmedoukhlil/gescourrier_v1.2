@@ -10,6 +10,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\CourrierAnnotationController;
 use App\Http\Controllers\CourrierShareController;
 use App\Http\Controllers\LecteurResponseDraftController;
+use App\Http\Controllers\ResponseDraftExchangeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,9 +29,8 @@ require __DIR__.'/auth.php';
 // Routes protégées par l'authentification
 Route::middleware(['auth'])->group(function () {
     // Dashboard
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+
     
     // Route pour afficher les documents (tous les utilisateurs authentifiés)
     Route::get('/document/view/{path}', function ($path) {
@@ -147,3 +147,28 @@ Route::post('/response-draft/{draft}/review', [LecteurResponseDraftController::c
 // Pour les lecteurs
 Route::post('/response-draft/{draft}/revision', [LecteurResponseDraftController::class, 'addRevision'])
     ->name('lecteur-response-drafts.add-revision');
+    // À ajouter dans le fichier routes/web.php
+
+// Routes pour les échanges sur les projets de réponse
+Route::middleware(['auth'])->group(function () {
+    // Formulaire pour créer un nouvel échange
+    Route::get('/response-draft/{draft}/exchanges/create', [ResponseDraftExchangeController::class, 'create'])
+        ->name('response-draft-exchanges.create');
+    
+    // Enregistrer un nouvel échange
+    Route::post('/response-draft/{draft}/exchanges', [ResponseDraftExchangeController::class, 'store'])
+        ->name('response-draft-exchanges.store');
+    
+    // Historique des échanges
+    Route::get('/response-draft/{draft}/exchanges', [ResponseDraftExchangeController::class, 'history'])
+        ->name('response-draft-exchanges.history');
+});
+Route::prefix('notifications')->name('notifications.')->group(function () {
+    Route::get('/', [NotificationController::class, 'index'])->name('index');
+    Route::get('/settings', [NotificationController::class, 'settings'])->name('settings');
+    Route::get('/{id}', [NotificationController::class, 'show'])->name('show');
+    Route::post('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
+    Route::post('/{id}/mark-read', [NotificationController::class, 'markAsRead'])->name('mark-read');
+    Route::delete('/{id}', [NotificationController::class, 'destroy'])->name('destroy');
+    Route::post('/delete-read', [NotificationController::class, 'destroyRead'])->name('destroy-read');
+});
