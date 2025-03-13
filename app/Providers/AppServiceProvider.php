@@ -13,6 +13,7 @@ use App\Http\Livewire\UploadDechargeModal;
 use App\Http\Livewire\NotificationIndicator;
 use App\Http\Livewire\NotificationList;
 use App\Http\Livewire\NotificationSettings;
+use App\Http\Livewire\OfflineNotificationManager;
 
 use Illuminate\Support\Facades\Blade;
 use App\Http\Middleware\CheckRole;
@@ -50,6 +51,7 @@ class AppServiceProvider extends ServiceProvider
         Livewire::component('notification-indicator', NotificationIndicator::class);
         Livewire::component('notification-list', NotificationList::class);
         Livewire::component('notification-settings', NotificationSettings::class);
+        Livewire::component('offline-notification-manager', OfflineNotificationManager::class);
  
  
 

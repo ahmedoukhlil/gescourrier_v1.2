@@ -40,6 +40,11 @@
                     {{ $slot ?? '' }}
                 @endif
             </main>
+            
+            <!-- Gestionnaire de notifications hors ligne -->
+            @auth
+                @livewire('offline-notification-manager')
+            @endauth
         </div>
         
         <!-- Livewire Scripts -->
